@@ -32,11 +32,11 @@ export default function RegisterSale() {
   const [success, setSuccess] = useState(false)
   const [lastTotal, setLastTotal] = useState(0)
 
-  const selectedProduct = products.find(p => p.id === parseInt(form.productId))
+  const selectedProduct = products.find(p => p.id === form.productId)
   const total = (form.unitPrice || 0) * form.quantity
 
   const handleProductChange = (e) => {
-    const product = products.find(p => p.id === parseInt(e.target.value))
+    const product = products.find(p => p.id === e.target.value)
     setForm(f => ({ ...f, productId: e.target.value, unitPrice: product ? product.price : '' }))
   }
 
@@ -44,7 +44,7 @@ export default function RegisterSale() {
     e.preventDefault()
     if (!form.productId || !form.unitPrice || form.quantity < 1) return
     addSale({
-      productId: parseInt(form.productId),
+      productId: form.productId,
       productName: selectedProduct.name,
       quantity: parseInt(form.quantity),
       unitPrice: parseInt(form.unitPrice),

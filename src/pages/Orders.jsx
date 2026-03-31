@@ -14,14 +14,14 @@ const statusConfig = {
 function CreateOrderModal({ onClose, onAdd, products }) {
   const [form, setForm] = useState({ customer: '', productId: '', quantity: 1, note: '' })
 
-  const selectedProduct = products.find(p => p.id === parseInt(form.productId))
+  const selectedProduct = products.find(p => p.id === form.productId)
   const total = selectedProduct ? selectedProduct.price * form.quantity : 0
 
   const handleSubmit = (e) => {
     e.preventDefault()
     onAdd({
       customer: form.customer,
-      productId: parseInt(form.productId),
+      productId: form.productId,
       productName: selectedProduct?.name || '',
       quantity: parseInt(form.quantity),
       total,
