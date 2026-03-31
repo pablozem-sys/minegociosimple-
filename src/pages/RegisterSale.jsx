@@ -31,6 +31,7 @@ export default function RegisterSale() {
   })
   const [success, setSuccess] = useState(false)
   const [lastTotal, setLastTotal] = useState(0)
+  const [error, setError] = useState(null)
 
   const selectedProduct = products.find(p => p.id === form.productId)
   const total = (form.unitPrice || 0) * form.quantity
@@ -40,10 +41,11 @@ export default function RegisterSale() {
     setForm(f => ({ ...f, productId: e.target.value, unitPrice: product ? product.price : '' }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.productId || !form.unitPrice || form.quantity < 1) return
-    addSale({
+    setError(null)
+    const { error } = await addSale({
       productId: form.productId,
       productName: selectedProduct.name,
       quantity: parseInt(form.quantity),
@@ -52,6 +54,10 @@ export default function RegisterSale() {
       customer: form.customer,
       paymentMethod: form.paymentMethod,
     })
+    if (error) {
+      setError(error.message || 'Error al registrar la venta')
+      return
+    }
     setLastTotal(total)
     setSuccess(true)
     setTimeout(() => {
@@ -202,6 +208,10 @@ export default function RegisterSale() {
             <span className="text-sm font-medium text-blue-100">Total</span>
             <span className="text-2xl font-bold text-white">{fmt(total)}</span>
           </div>
+
+          {error && (
+            <p className="text-sm text-[#DC4B56] bg-red-50 px-4 py-3 rounded-2xl">{error}</p>
+          )}
 
           {/* Submit */}
           <button

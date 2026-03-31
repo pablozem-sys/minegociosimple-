@@ -123,15 +123,16 @@ export function AppProvider({ children }) {
       date: fmt(new Date()),
     }).select().single()
 
-    if (!error && data) {
-      setSales(prev => [dbToSale(data), ...prev])
-      const product = products.find(p => p.id === sale.productId)
-      if (product) {
-        await updateProduct(sale.productId, {
-          stock: Math.max(0, product.stock - sale.quantity)
-        })
-      }
+    if (error) return { error }
+
+    setSales(prev => [dbToSale(data), ...prev])
+    const product = products.find(p => p.id === sale.productId)
+    if (product) {
+      await updateProduct(sale.productId, {
+        stock: Math.max(0, product.stock - sale.quantity)
+      })
     }
+    return { error: null }
   }
 
   // ─── ORDERS ───────────────────────────────────────────────────────────────
