@@ -4,8 +4,9 @@ import {
   Star, ChevronRight, X, Check
 } from 'lucide-react'
 
-const SIGNUP_URL = 'https://minegociosimple.vercel.app/signup'
-const LOGIN_URL  = 'https://minegociosimple.vercel.app/login'
+const SIGNUP_URL  = 'https://minegociosimple.vercel.app/signup'
+const LOGIN_URL   = 'https://minegociosimple.vercel.app/login'
+const UPGRADE_URL = 'https://minegociosimple.lemonsqueezy.com/checkout/buy/ef3fd402-6b9a-4693-9c4b-5a4974929973'
 
 // ─── DATA ───────────────────────────────────────────────────────────────────
 
@@ -307,7 +308,7 @@ function Pricing() {
             </div>
             <p className="text-sm text-blue-200 mb-7">Todo lo que necesitás para crecer</p>
 
-            <a href={SIGNUP_URL}
+            <a href={UPGRADE_URL} target="_blank" rel="noreferrer"
               className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-white font-semibold text-sm hover:bg-blue-50 transition-all mb-7"
               style={{ color: '#2563EB' }}>
               Pasar a Pro

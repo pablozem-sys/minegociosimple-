@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { User, Mail, Store, LogOut, Save, Loader2, Check } from 'lucide-react'
+import { User, Mail, Store, LogOut, Save, Loader2, Check, Zap } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+
+const UPGRADE_URL = 'https://minegociosimple.lemonsqueezy.com/checkout/buy/ef3fd402-6b9a-4693-9c4b-5a4974929973'
 
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:border-transparent'
 
@@ -116,6 +118,15 @@ export default function Profile() {
           ))}
         </div>
       </div>
+
+      {/* Upgrade */}
+      <a href={`${UPGRADE_URL}?checkout[email]=${encodeURIComponent(user?.email || '')}`}
+        target="_blank" rel="noreferrer"
+        className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all"
+        style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)', boxShadow: '0 8px 20px rgba(37,99,235,0.25)' }}>
+        <Zap size={18} />
+        Pasar a Pro — $5 USD/mes
+      </a>
 
       {/* Logout */}
       <button onClick={handleLogout}
