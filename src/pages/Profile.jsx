@@ -8,7 +8,7 @@ const UPGRADE_URL = 'https://minegociosimple.lemonsqueezy.com/checkout/buy/ef3fd
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:border-transparent'
 
 export default function Profile() {
-  const { theme, setTheme, themes } = useApp()
+  const { theme, setTheme, themes, isPro } = useApp()
   const [user, setUser] = useState(null)
   const [name, setName] = useState('')
   const [businessName, setBusinessName] = useState('')
@@ -54,7 +54,14 @@ export default function Profile() {
           style={{ background: 'var(--color-gradient)', boxShadow: '0 8px 24px var(--color-primary-shadow)' }}>
           {initials}
         </div>
-        {name && <p className="text-base font-semibold text-gray-900">{name}</p>}
+        <div className="flex items-center gap-2">
+          {name && <p className="text-base font-semibold text-gray-900">{name}</p>}
+          {isPro && (
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: '#2563EB' }}>
+              PRO
+            </span>
+          )}
+        </div>
         <p className="text-sm text-gray-400">{user?.email}</p>
       </div>
 
@@ -120,13 +127,22 @@ export default function Profile() {
       </div>
 
       {/* Upgrade */}
-      <a href={`${UPGRADE_URL}?checkout[email]=${encodeURIComponent(user?.email || '')}`}
-        target="_blank" rel="noreferrer"
-        className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all"
-        style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)', boxShadow: '0 8px 20px rgba(37,99,235,0.25)' }}>
-        <Zap size={18} />
-        Pasar a Pro — $5 USD/mes
-      </a>
+      {!isPro && (
+        <a href={`${UPGRADE_URL}?checkout[email]=${encodeURIComponent(user?.email || '')}`}
+          target="_blank" rel="noreferrer"
+          className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all"
+          style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)', boxShadow: '0 8px 20px rgba(37,99,235,0.25)' }}>
+          <Zap size={18} />
+          Pasar a Pro — $5 USD/mes
+        </a>
+      )}
+      {isPro && (
+        <div className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white"
+          style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)' }}>
+          <Zap size={18} />
+          Plan Pro activo
+        </div>
+      )}
 
       {/* Logout */}
       <button onClick={handleLogout}
