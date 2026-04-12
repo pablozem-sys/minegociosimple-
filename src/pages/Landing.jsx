@@ -4,8 +4,8 @@ import {
   Star, ChevronRight, X, Check, Heart
 } from 'lucide-react'
 
-const SIGNUP_URL  = 'https://minegociosimple.vercel.app/signup'
-const LOGIN_URL   = 'https://minegociosimple.vercel.app/login'
+const SIGNUP_URL  = 'https://zimplex.app/signup'
+const LOGIN_URL   = 'https://zimplex.app/login'
 const UPGRADE_URL = 'https://minegociosimple.lemonsqueezy.com/checkout/buy/ef3fd402-6b9a-4693-9c4b-5a4974929973'
 const VIOLET      = '#7C3AED'
 const VIOLET_DARK = '#6D28D9'
@@ -68,7 +68,7 @@ const proFeatures   = ['Ventas ilimitadas', 'Control de stock avanzado', 'Report
 const proExcluded   = ['Control de stock avanzado', 'Reportes completos', 'Integración pedidos WhatsApp', 'Soporte prioritario']
 
 const faqs = [
-  { q: '¿Necesito descargar una app?', a: 'No. Mi Negocio Simple funciona directo en el navegador de tu celular. Sin descargar nada. Puedes guardarla en tu pantalla de inicio y se comporta como una app normal.' },
+  { q: '¿Necesito descargar una app?', a: 'No. Zimplex funciona directo en el navegador de tu celular. Sin descargar nada. Puedes guardarla en tu pantalla de inicio y se comporta como una app normal.' },
   { q: '¿Funciona sin internet?', a: 'Necesitas conexión para sincronizar los datos, pero está optimizada para funcionar bien con conexiones lentas o inestables como las de datos móviles.' },
   { q: '¿Mis datos están seguros?', a: 'Sí. Tus datos se almacenan de forma segura en servidores con encriptación. Solo tú tienes acceso a la información de tu negocio.' },
   { q: '¿Para qué tipo de negocios sirve?', a: 'Para cualquier negocio pequeño que vende productos: frutas, ropa, comida hecha en casa, artesanías, cosméticos, abarrotes y mucho más. Si vendes por WhatsApp, ferias o en tu casa, esto es para ti.' },
@@ -169,7 +169,7 @@ function Header({ onLogin }) {
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: VIOLET }}>
             <ShoppingBag size={16} color="white" />
           </div>
-          <span className="font-bold text-gray-900">Mi Negocio Simple</span>
+          <span className="font-bold text-gray-900">Zimplex</span>
         </div>
         <div className="hidden md:flex items-center gap-7">
           <a href="#como-funciona" className="text-sm text-gray-500 font-medium hover:text-gray-800 transition-colors">Cómo funciona</a>
@@ -300,7 +300,7 @@ function Solution() {
       <div className="max-w-4xl mx-auto text-center">
         <Badge>La solución</Badge>
         <h2 className="mt-4 text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-          Mi Negocio Simple te ayuda a{' '}
+          Zimplex te ayuda a{' '}
           <span style={{ background: `linear-gradient(135deg, ${VIOLET}, ${VIOLET_MED})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             ordenar tu negocio en minutos.
           </span>
@@ -595,7 +595,7 @@ function Footer() {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: VIOLET }}>
                 <ShoppingBag size={14} color="white" />
               </div>
-              <span className="font-bold text-gray-900">Mi Negocio Simple</span>
+              <span className="font-bold text-gray-900">Zimplex</span>
             </div>
             <p className="text-sm text-gray-400 max-w-xs">La forma más simple de llevar tu negocio. Hecho con ❤️ para microemprendedores.</p>
           </div>
@@ -618,7 +618,7 @@ function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-100 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-sm text-gray-400">© {new Date().getFullYear()} Mi Negocio Simple. Todos los derechos reservados.</p>
+          <p className="text-sm text-gray-400">© {new Date().getFullYear()} Zimplex. Todos los derechos reservados.</p>
           <p className="text-sm text-gray-400">Hecho en 🇨🇱 Chile</p>
         </div>
       </div>

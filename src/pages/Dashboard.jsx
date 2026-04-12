@@ -72,7 +72,7 @@ export default function Dashboard() {
           <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">
             {new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
-          <h1 className="text-xl font-bold text-gray-900 mt-0.5">MiNegocioSimple</h1>
+          <h1 className="text-xl font-bold text-gray-900 mt-0.5">Zimplex</h1>
         </div>
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#A78BFA] flex items-center justify-center shadow-md shadow-violet-200">
           <span className="text-white font-bold text-sm">M</span>

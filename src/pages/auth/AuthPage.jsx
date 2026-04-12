@@ -42,7 +42,7 @@ export default function AuthPage() {
           style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)' }}>
           <ShoppingBag size={28} color="white" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">MiNegocioSimple</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Zimplex</h1>
         <p className="text-gray-400 text-sm mt-1">Organiza tu negocio en segundos</p>
       </div>
 
