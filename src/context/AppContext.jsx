@@ -136,7 +136,17 @@ export function AppProvider({ children }) {
   }
 
   // ─── SALES ────────────────────────────────────────────────────────────────
+  const FREE_SALES_LIMIT = 100
+
   const addSale = async (sale) => {
+    if (plan !== 'pro') {
+      const currentMonth = fmt(new Date()).slice(0, 7)
+      const count = sales.filter(s => s.date?.startsWith(currentMonth)).length
+      if (count >= FREE_SALES_LIMIT) {
+        return { error: { message: 'LIMIT_REACHED' } }
+      }
+    }
+
     const { data, error } = await supabase.from('sales').insert({
       user_id: userId,
       product_id: sale.productId,
@@ -213,7 +223,9 @@ export function AppProvider({ children }) {
 
   const todaySales = sales.filter(s => s.date === todayStr)
   const todayTotal = todaySales.reduce((sum, s) => sum + s.total, 0)
-  const monthTotal = sales.filter(s => s.date?.startsWith(currentMonth)).reduce((sum, s) => sum + s.total, 0)
+  const monthlySales = sales.filter(s => s.date?.startsWith(currentMonth))
+  const monthTotal = monthlySales.reduce((sum, s) => sum + s.total, 0)
+  const monthlySalesCount = monthlySales.length
   const pendingOrders = orders.filter(o => o.status === 'pendiente').length
   const lowStockProducts = products.filter(p => p.stock <= p.lowStockThreshold).length
 
@@ -230,7 +242,9 @@ export function AppProvider({ children }) {
       activeTab, setActiveTab,
       loading,
       theme, setTheme, themes: THEMES,
+      userId,
       plan, isPro: plan === 'pro',
+      monthlySalesCount, freeSalesLimit: 100,
       addSale, addProduct, updateProduct, deleteProduct,
       addOrder, updateOrderStatus,
       addGoal, updateGoalProgress, deleteGoal,

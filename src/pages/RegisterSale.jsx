@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { CheckCircle, ChevronDown, Clock, TrendingUp } from 'lucide-react'
+import { CheckCircle, ChevronDown, Clock, TrendingUp, Zap, Lock } from 'lucide-react'
+
+const BASE_UPGRADE_URL = 'https://minegociosimple.lemonsqueezy.com/checkout/buy/ef3fd402-6b9a-4693-9c4b-5a4974929973'
 
 const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
@@ -20,7 +22,10 @@ const paymentLabels = { efectivo: 'Efectivo', transferencia: 'Transferencia', ta
 const inputClass = 'w-full bg-white border border-gray-200 rounded-2xl px-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent shadow-sm'
 
 export default function RegisterSale() {
-  const { products, sales, addSale } = useApp()
+  const { products, sales, addSale, isPro, monthlySalesCount, freeSalesLimit, userId } = useApp()
+  const upgradeUrl = userId
+    ? `${BASE_UPGRADE_URL}?checkout[custom][user_id]=${userId}`
+    : BASE_UPGRADE_URL
   const [tab, setTab] = useState('registrar')
   const [form, setForm] = useState({
     productId: '',
@@ -102,7 +107,33 @@ export default function RegisterSale() {
       </div>
 
       {tab === 'registrar' ? (
+        !isPro && monthlySalesCount >= freeSalesLimit ? (
+          <UpgradeWall count={monthlySalesCount} limit={freeSalesLimit} />
+        ) :
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!isPro && monthlySalesCount < freeSalesLimit - 10 && (
+            <div className="flex items-center justify-between bg-gray-50 rounded-2xl px-4 py-2.5">
+              <span className="text-xs text-gray-400">Ventas este mes</span>
+              <span className="text-xs font-semibold text-gray-500">{monthlySalesCount}/{freeSalesLimit}</span>
+            </div>
+          )}
+          {!isPro && monthlySalesCount >= freeSalesLimit - 10 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-3">
+              <span className="text-lg leading-none mt-0.5">⚠️</span>
+              <div>
+                <p className="text-sm font-semibold text-amber-800">
+                  Te quedan {freeSalesLimit - monthlySalesCount} ventas este mes
+                </p>
+                <p className="text-xs text-amber-600 mt-0.5">
+                  El plan gratis incluye {freeSalesLimit} ventas/mes.{' '}
+                  <a href={upgradeUrl} target="_blank" rel="noreferrer" className="font-semibold underline">
+                    Pasa a Pro
+                  </a>{' '}
+                  para ventas ilimitadas.
+                </p>
+              </div>
+            </div>
+          )}
           {/* Product */}
           <div>
             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 block">Producto</label>
@@ -224,6 +255,37 @@ export default function RegisterSale() {
       ) : (
         <SaleHistory sales={sales} />
       )}
+    </div>
+  )
+}
+
+function UpgradeWall({ count, limit }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 px-2 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mb-4">
+        <Lock size={28} className="text-[#7C3AED]" />
+      </div>
+      <h2 className="text-lg font-bold text-gray-900 mb-1">Límite alcanzado</h2>
+      <p className="text-sm text-gray-400 mb-1">
+        Usaste las {limit} ventas gratuitas de este mes.
+      </p>
+      <p className="text-xs text-gray-300 mb-6">El contador se reinicia el 1 del próximo mes.</p>
+
+      {/* Usage bar */}
+      <div className="w-full bg-gray-100 rounded-full h-2 mb-6">
+        <div className="bg-[#7C3AED] h-2 rounded-full w-full" />
+      </div>
+
+      <a
+        href={upgradeUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="w-full bg-[#7C3AED] text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-violet-200 active:scale-[0.98] transition-all"
+      >
+        <Zap size={18} />
+        Pasa a Pro — USD 5/mes
+      </a>
+      <p className="text-xs text-gray-300 mt-3">Ventas ilimitadas + historial avanzado</p>
     </div>
   )
 }
