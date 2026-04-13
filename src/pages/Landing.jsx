@@ -2,6 +2,15 @@ import {
   Check, ArrowRight, Star, TrendingUp, Package, BarChart2,
   X, ChevronRight, Heart, ShoppingBag, MessageCircle
 } from 'lucide-react'
+import { GradientBackground } from '@/components/ui/gradient-background'
+
+const HERO_GRADIENTS = [
+  'linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%)',
+  'linear-gradient(135deg, #3A86FF 0%, #2EC4B6 100%)',
+  'linear-gradient(135deg, #1d4ed8 0%, #059669 100%)',
+  'linear-gradient(135deg, #2563eb 0%, #2EC4B6 100%)',
+  'linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%)',
+]
 
 // ─── BRAND ──────────────────────────────────────────────────────────────────
 const BLUE       = '#3A86FF'
@@ -235,36 +244,43 @@ function MobileCTABar({ onLogin }) {
 
 function Hero({ onLogin }) {
   return (
-    <section style={{ paddingTop: 80, paddingBottom: 96, paddingLeft: 24, paddingRight: 24, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(58,134,255,0.07) 0%, transparent 65%)' }} />
+    <GradientBackground
+      gradients={HERO_GRADIENTS}
+      animationDuration={10}
+      overlay
+      overlayOpacity={0.15}
+      className="text-center"
+    >
+      <div style={{ paddingTop: 100, paddingBottom: 96, paddingLeft: 24, paddingRight: 24 }}>
+      <div style={{ maxWidth: 860, margin: '0 auto' }}>
+        <Chip style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}>
+          ✦ Para emprendedores que venden por WhatsApp
+        </Chip>
 
-      <div style={{ maxWidth: 860, margin: '0 auto', position: 'relative' }}>
-        <Chip>✦ Para emprendedores que venden por WhatsApp</Chip>
-
-        <h1 style={{ marginTop: 24, fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: '#111827', fontFamily: POPPINS }}>
+        <h1 style={{ marginTop: 24, fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: 'white', fontFamily: POPPINS }}>
           Deja de adivinar<br />cuánto ganas.
         </h1>
-        <h1 style={{ margin: '4px 0 0', fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontFamily: POPPINS }}>
+        <h1 style={{ margin: '4px 0 0', fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: 'rgba(255,255,255,0.85)', fontFamily: POPPINS }}>
           Empieza a tener control real.
         </h1>
 
-        <p style={{ marginTop: 20, fontSize: 17, color: '#64748B', lineHeight: 1.7, maxWidth: 520, margin: '20px auto 0', fontFamily: POPPINS }}>
+        <p style={{ marginTop: 20, fontSize: 17, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, maxWidth: 520, margin: '20px auto 0', fontFamily: POPPINS }}>
           Registra tus ventas en segundos, controla tu stock y entiende tu negocio sin usar Excel.
         </p>
 
         <div style={{ marginTop: 32, display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
-          <BtnPrimary href={SIGNUP_URL} style={{ fontSize: 17, padding: '16px 32px' }}>
+          <a href={SIGNUP_URL} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '16px 32px', borderRadius: 14, background: 'white', color: BLUE, fontWeight: 700, fontSize: 17, textDecoration: 'none', fontFamily: POPPINS, boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}>
             Comenzar gratis <ArrowRight size={18} />
-          </BtnPrimary>
-          <BtnSecondary onClick={onLogin} style={{ fontSize: 17, padding: '16px 32px' }}>
+          </a>
+          <button onClick={onLogin} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '16px 32px', borderRadius: 14, background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 600, fontSize: 17, border: '1.5px solid rgba(255,255,255,0.35)', cursor: 'pointer', fontFamily: POPPINS, backdropFilter: 'blur(8px)' }}>
             Ya tengo cuenta
-          </BtnSecondary>
+          </button>
         </div>
 
         <div style={{ marginTop: 24, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 20 }}>
           {['Sin tarjeta de crédito', 'Gratis para empezar', 'Listo en 2 minutos'].map(t => (
-            <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#94A3B8', fontFamily: POPPINS }}>
-              <Check size={13} color={TEAL} strokeWidth={2.5} />{t}
+            <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(255,255,255,0.7)', fontFamily: POPPINS }}>
+              <Check size={13} color="rgba(255,255,255,0.9)" strokeWidth={2.5} />{t}
             </span>
           ))}
         </div>
@@ -273,11 +289,11 @@ function Hero({ onLogin }) {
           <PhoneMockup />
         </div>
 
-        <div style={{ marginTop: 36, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 24, fontSize: 13, color: '#94A3B8', fontFamily: POPPINS }}>
+        <div style={{ marginTop: 36, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 24, fontSize: 13, color: 'rgba(255,255,255,0.7)', fontFamily: POPPINS }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ display: 'flex' }}>
               {[BLUE, TEAL, '#059669', '#DC2626'].map((bg, i) => (
-                <div key={i} style={{ width: 30, height: 30, borderRadius: '50%', background: bg, border: '2px solid white', marginLeft: i > 0 ? -8 : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: 'white', fontFamily: POPPINS }}>
+                <div key={i} style={{ width: 30, height: 30, borderRadius: '50%', background: bg, border: '2px solid rgba(255,255,255,0.5)', marginLeft: i > 0 ? -8 : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: 'white', fontFamily: POPPINS }}>
                   {['M','V','C','A'][i]}
                 </div>
               ))}
@@ -285,12 +301,13 @@ function Hero({ onLogin }) {
             <span>+200 emprendedores ya lo usan</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ color: '#F59E0B' }}>★★★★★</span>
+            <span style={{ color: '#FCD34D' }}>★★★★★</span>
             <span>4.9 en reseñas</span>
           </div>
         </div>
       </div>
-    </section>
+      </div>
+    </GradientBackground>
   )
 }
 
