@@ -20,7 +20,7 @@ export default function AuthPage() {
       if (mode === 'register') {
         const { error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
-        setSuccess('¡Cuenta creada! Revisa tu email para confirmar.')
+        setSuccess('¡Cuenta creada! Entrando a tu negocio...')
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
