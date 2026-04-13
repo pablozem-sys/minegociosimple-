@@ -469,7 +469,7 @@ function Pricing() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
           {/* Free */}
-          <div style={{ background: 'white', borderRadius: 24, padding: 28, border: '2px solid #F1F5F9' }}>
+          <div style={{ background: 'white', borderRadius: 24, padding: 28, border: '2px solid #F1F5F9', display: 'flex', flexDirection: 'column' }}>
             <p style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', marginBottom: 8, fontFamily: POPPINS, letterSpacing: '0.08em' }}>GRATIS</p>
             <p style={{ fontSize: 40, fontWeight: 800, color: '#111827', fontFamily: POPPINS, lineHeight: 1 }}>$0</p>
             <p style={{ fontSize: 13, color: '#94A3B8', margin: '6px 0 20px', fontFamily: POPPINS }}>Para empezar</p>
@@ -485,12 +485,12 @@ function Pricing() {
                 </li>
               ))}
             </ul>
-            <p style={{ textAlign: 'center', fontSize: 11, color: '#94A3B8', marginBottom: 14, fontFamily: POPPINS }}>Gratis para siempre</p>
+            <p style={{ textAlign: 'center', fontSize: 11, color: '#94A3B8', marginBottom: 14, marginTop: 'auto', paddingTop: 20, fontFamily: POPPINS }}>Gratis para siempre</p>
             <BtnSecondary href={SIGNUP_URL} style={{ width: '100%', justifyContent: 'center', fontSize: 14 }}>Empezar gratis</BtnSecondary>
           </div>
 
           {/* Pro */}
-          <div style={{ background: GRAD, borderRadius: 24, padding: 28, position: 'relative', boxShadow: '0 20px 56px rgba(58,134,255,0.22)' }}>
+          <div style={{ background: GRAD, borderRadius: 24, padding: 28, position: 'relative', boxShadow: '0 20px 56px rgba(58,134,255,0.22)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
               <span style={{ background: 'rgba(255,255,255,0.22)', backdropFilter: 'blur(8px)', color: 'white', fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 999, fontFamily: POPPINS }}>
                 Más elegido
@@ -509,7 +509,7 @@ function Pricing() {
                 </li>
               ))}
             </ul>
-            <a href={UPGRADE_URL} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', padding: '14px 0', borderRadius: 14, background: 'white', color: BLUE, fontWeight: 600, fontSize: 14, textDecoration: 'none', fontFamily: POPPINS }}>
+            <a href={UPGRADE_URL} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', padding: '14px 0', borderRadius: 14, background: 'white', color: BLUE, fontWeight: 600, fontSize: 14, textDecoration: 'none', fontFamily: POPPINS, marginTop: 'auto' }}>
               Pasar a Pro <ChevronRight size={15} />
             </a>
           </div>
