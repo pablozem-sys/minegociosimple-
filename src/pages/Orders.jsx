@@ -11,7 +11,32 @@ const statusConfig = {
   entregado: { label: 'Entregado', color: 'text-[#7CD09B]', bg: 'bg-green-50', dot: 'bg-[#7CD09B]' },
 }
 
-function CreateOrderModal({ onClose, onAdd, products }) {
+function buildWhatsAppMsg(customer, quantity, productName, total, note, transfer) {
+  const lines = [
+    `Hola ${customer} 👋`,
+    ``,
+    `Tu pedido está confirmado:`,
+    `• ${quantity} × ${productName}`,
+    `• Total: *${fmt(total)}*`,
+  ]
+  if (note) lines.push(`• Nota: ${note}`)
+
+  const hasTransfer = transfer.bank || transfer.account || transfer.holder
+  if (hasTransfer) {
+    lines.push(``, `💳 *Datos para transferencia:*`)
+    if (transfer.bank)        lines.push(`Banco: ${transfer.bank}`)
+    if (transfer.accountType) lines.push(`Tipo: ${transfer.accountType}`)
+    if (transfer.holder)      lines.push(`Titular: ${transfer.holder}`)
+    if (transfer.rut)         lines.push(`RUT: ${transfer.rut}`)
+    if (transfer.account)     lines.push(`N° cuenta: ${transfer.account}`)
+    if (transfer.email)       lines.push(`Email: ${transfer.email}`)
+  }
+
+  lines.push(``, `¡Gracias por tu compra! 🙌`)
+  return lines.join('\n')
+}
+
+function CreateOrderModal({ onClose, onAdd, products, transfer }) {
   const [form, setForm] = useState({ customer: '', productId: '', quantity: 1, note: '' })
 
   const selectedProduct = products.find(p => p.id === form.productId)
@@ -33,7 +58,7 @@ function CreateOrderModal({ onClose, onAdd, products }) {
 
   const handleWhatsApp = () => {
     if (!form.customer || !selectedProduct) return
-    const msg = `Hola ${form.customer}, tu pedido de ${form.quantity} ${selectedProduct.name} está confirmado. Total ${fmt(total)}. ¡Gracias! 🙌`
+    const msg = buildWhatsAppMsg(form.customer, form.quantity, selectedProduct.name, total, form.note, transfer)
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
@@ -107,7 +132,7 @@ function CreateOrderModal({ onClose, onAdd, products }) {
 }
 
 export default function Orders() {
-  const { orders, products, addOrder, updateOrderStatus } = useApp()
+  const { orders, products, addOrder, updateOrderStatus, transferDetails } = useApp()
   const [showCreate, setShowCreate] = useState(false)
   const [filter, setFilter] = useState('todos')
 
@@ -148,16 +173,16 @@ export default function Orders() {
             <p className="text-sm font-medium">No hay pedidos</p>
           </div>
         ) : (
-          filtered.map(order => <OrderCard key={order.id} order={order} onStatusChange={updateOrderStatus} />)
+          filtered.map(order => <OrderCard key={order.id} order={order} onStatusChange={updateOrderStatus} transfer={transferDetails} />)
         )}
       </div>
 
-      {showCreate && <CreateOrderModal onClose={() => setShowCreate(false)} onAdd={addOrder} products={products} />}
+      {showCreate && <CreateOrderModal onClose={() => setShowCreate(false)} onAdd={addOrder} products={products} transfer={transferDetails} />}
     </div>
   )
 }
 
-function OrderCard({ order, onStatusChange }) {
+function OrderCard({ order, onStatusChange, transfer }) {
   const config = statusConfig[order.status]
   const statuses = ['pendiente', 'pagado', 'entregado']
 
@@ -167,7 +192,7 @@ function OrderCard({ order, onStatusChange }) {
   }
 
   const whatsApp = () => {
-    const msg = `Hola ${order.customer}, tu pedido de ${order.quantity} ${order.productName} está ${order.status}. Total ${fmt(order.total)}. 🙌`
+    const msg = buildWhatsAppMsg(order.customer, order.quantity, order.productName, order.total, order.note, transfer)
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
   }
 

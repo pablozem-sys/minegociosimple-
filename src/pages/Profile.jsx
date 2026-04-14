@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { User, Mail, Store, LogOut, Save, Loader2, Check, Zap } from 'lucide-react'
+import { User, Mail, Store, LogOut, Save, Loader2, Check, Zap, CreditCard } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 
 const BASE_UPGRADE_URL = 'https://zimplexapp.lemonsqueezy.com/checkout/buy/aa87c828-1e44-484a-948b-a55f2f129f81'
@@ -15,18 +15,32 @@ function buildUpgradeUrl(userId, email) {
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:border-transparent'
 
 export default function Profile() {
-  const { theme, setTheme, themes, isPro, userId, setBusinessName } = useApp()
-  const [user, setUser] = useState(null)
-  const [name, setName] = useState('')
-  const [businessName, setBusinessName] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const { theme, setTheme, themes, isPro, userId, setBusinessName, setTransferDetails } = useApp()
+
+  const [user, setUser]               = useState(null)
+  const [name, setName]               = useState('')
+  const [bizName, setBizName]         = useState('')
+  const [loading, setLoading]         = useState(false)
+  const [success, setSuccess]         = useState(false)
+  const [transfer, setTransfer]       = useState({
+    bank: '', holder: '', rut: '', account: '', accountType: '', email: ''
+  })
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
       setUser(user)
-      setName(user?.user_metadata?.name || '')
-      setBusinessName(user?.user_metadata?.business_name || '')
+      const m = user.user_metadata || {}
+      setName(m.name || '')
+      setBizName(m.business_name || '')
+      setTransfer({
+        bank:        m.transfer_bank         || '',
+        holder:      m.transfer_holder       || '',
+        rut:         m.transfer_rut          || '',
+        account:     m.transfer_account      || '',
+        accountType: m.transfer_account_type || '',
+        email:       m.transfer_email        || '',
+      })
     })
   }, [])
 
@@ -34,17 +48,27 @@ export default function Profile() {
     e.preventDefault()
     setLoading(true)
     await supabase.auth.updateUser({
-      data: { name, business_name: businessName }
+      data: {
+        name,
+        business_name:        bizName,
+        transfer_bank:        transfer.bank,
+        transfer_holder:      transfer.holder,
+        transfer_rut:         transfer.rut,
+        transfer_account:     transfer.account,
+        transfer_account_type:transfer.accountType,
+        transfer_email:       transfer.email,
+      }
     })
-    setBusinessName(businessName)
+    setBusinessName(bizName)
+    setTransferDetails({ ...transfer })
     setLoading(false)
     setSuccess(true)
-    setTimeout(() => setSuccess(false), 2000)
+    setTimeout(() => setSuccess(false), 2500)
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-  }
+  const handleLogout = async () => { await supabase.auth.signOut() }
+
+  const setT = (field) => (e) => setTransfer(prev => ({ ...prev, [field]: e.target.value }))
 
   const initials = name
     ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
@@ -73,41 +97,98 @@ export default function Profile() {
         <p className="text-sm text-gray-400">{user?.email}</p>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSave} className="space-y-4 mb-6">
-        <div>
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 block">Tu nombre</label>
-          <div className="relative">
-            <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input value={name} onChange={e => setName(e.target.value)}
-              placeholder="Ej: María González"
-              className={`${inputClass} pl-10`} />
+      <form onSubmit={handleSave} className="space-y-6 mb-6">
+
+        {/* ── Datos personales ── */}
+        <div className="space-y-4">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Datos del negocio</p>
+
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">Tu nombre</label>
+            <div className="relative">
+              <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input value={name} onChange={e => setName(e.target.value)}
+                placeholder="Ej: María González" className={`${inputClass} pl-10`} />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">Nombre del negocio</label>
+            <div className="relative">
+              <Store size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input value={bizName} onChange={e => setBizName(e.target.value)}
+                placeholder="Ej: Empanadas La Abuela" className={`${inputClass} pl-10`} />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">Email</label>
+            <div className="relative">
+              <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input value={user?.email || ''} disabled
+                className={`${inputClass} pl-10 text-gray-400 cursor-not-allowed`} />
+            </div>
           </div>
         </div>
 
-        <div>
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 block">Nombre del negocio</label>
-          <div className="relative">
-            <Store size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input value={businessName} onChange={e => setBusinessName(e.target.value)}
-              placeholder="Ej: Empanadas La Abuela"
-              className={`${inputClass} pl-10`} />
+        {/* ── Datos de transferencia ── */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <CreditCard size={14} className="text-gray-400" />
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Datos de transferencia</p>
+          </div>
+          <p className="text-xs text-gray-400 -mt-2">Se incluyen automáticamente en el mensaje de WhatsApp de cada pedido.</p>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Banco</label>
+              <input value={transfer.bank} onChange={setT('bank')}
+                placeholder="Ej: Banco Estado" className={inputClass} />
+            </div>
+
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Nombre del titular</label>
+              <input value={transfer.holder} onChange={setT('holder')}
+                placeholder="Ej: María González" className={inputClass} />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">RUT</label>
+              <input value={transfer.rut} onChange={setT('rut')}
+                placeholder="12.345.678-9" className={inputClass} />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Tipo de cuenta</label>
+              <select value={transfer.accountType} onChange={setT('accountType')}
+                className={`${inputClass} appearance-none`}>
+                <option value="">Selecciona</option>
+                <option value="Cuenta corriente">Cuenta corriente</option>
+                <option value="Cuenta vista">Cuenta vista</option>
+                <option value="Cuenta de ahorro">Cuenta de ahorro</option>
+                <option value="Cuenta RUT">Cuenta RUT</option>
+              </select>
+            </div>
+
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">N° de cuenta</label>
+              <input value={transfer.account} onChange={setT('account')}
+                placeholder="000000000" className={inputClass} />
+            </div>
+
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Email para transferencia</label>
+              <input type="email" value={transfer.email} onChange={setT('email')}
+                placeholder="pagos@minegocio.cl" className={inputClass} />
+            </div>
           </div>
         </div>
 
-        <div>
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 block">Email</label>
-          <div className="relative">
-            <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input value={user?.email || ''} disabled
-              className={`${inputClass} pl-10 text-gray-400 cursor-not-allowed`} />
-          </div>
-        </div>
-
+        {/* ── Guardar ── */}
         <button type="submit" disabled={loading}
           className="w-full text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-60"
           style={{ background: 'var(--color-primary)', boxShadow: '0 8px 20px var(--color-primary-shadow)' }}>
-          {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+          {loading ? <Loader2 size={18} className="animate-spin" /> : success ? <Check size={18} /> : <Save size={18} />}
           {success ? '¡Guardado!' : 'Guardar cambios'}
         </button>
       </form>
@@ -117,13 +198,9 @@ export default function Profile() {
         <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 block">Color de la plataforma</label>
         <div className="flex gap-3">
           {themes.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTheme(t)}
+            <button key={t.id} onClick={() => setTheme(t)}
               className="relative w-10 h-10 rounded-full transition-transform active:scale-95"
-              style={{ background: t.gradient }}
-              title={t.name}
-            >
+              style={{ background: t.gradient }} title={t.name}>
               {theme.id === t.id && (
                 <span className="absolute inset-0 flex items-center justify-center">
                   <Check size={16} color="white" strokeWidth={3} />
@@ -136,8 +213,7 @@ export default function Profile() {
 
       {/* Upgrade */}
       {!isPro && (
-        <a href={buildUpgradeUrl(userId, user?.email)}
-          target="_blank" rel="noreferrer"
+        <a href={buildUpgradeUrl(userId, user?.email)} target="_blank" rel="noreferrer"
           className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all"
           style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)', boxShadow: '0 8px 20px rgba(37,99,235,0.25)' }}>
           <Zap size={18} />

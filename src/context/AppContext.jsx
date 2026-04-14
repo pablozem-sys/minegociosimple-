@@ -17,6 +17,9 @@ export function AppProvider({ children }) {
   const [userId, setUserId] = useState(null)
   const [plan, setPlan] = useState('free')
   const [businessName, setBusinessName] = useState('')
+  const [transferDetails, setTransferDetails] = useState({
+    bank: '', holder: '', rut: '', account: '', accountType: '', email: ''
+  })
   const [theme, setThemeState] = useState(() => {
     try {
       const saved = localStorage.getItem('app-theme')
@@ -40,6 +43,15 @@ export function AppProvider({ children }) {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUserId(user?.id ?? 'demo')
       setBusinessName(user?.user_metadata?.business_name || '')
+      const m = user?.user_metadata || {}
+      setTransferDetails({
+        bank:        m.transfer_bank        || '',
+        holder:      m.transfer_holder      || '',
+        rut:         m.transfer_rut         || '',
+        account:     m.transfer_account     || '',
+        accountType: m.transfer_account_type|| '',
+        email:       m.transfer_email       || '',
+      })
     })
   }, [])
 
@@ -245,6 +257,7 @@ export function AppProvider({ children }) {
       loading,
       theme, setTheme, themes: THEMES,
       userId, businessName, setBusinessName,
+      transferDetails, setTransferDetails,
       plan, isPro: plan === 'pro',
       monthlySalesCount, freeSalesLimit: 100,
       addSale, addProduct, updateProduct, deleteProduct,
