@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { User, Mail, Store, LogOut, Save, Loader2, Check, Zap, CreditCard } from 'lucide-react'
 import { useApp } from '../context/AppContext'
-import { buildUpgradeUrl } from '../lib/plans'
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:border-transparent'
 
@@ -15,6 +16,7 @@ export default function Profile() {
   const [loading, setLoading]         = useState(false)
   const [success, setSuccess]         = useState(false)
   const [saveError, setSaveError]     = useState('')
+  const [upgradeLoading, setUpgradeLoading] = useState(false)
   const [transfer, setTransfer]       = useState({
     bank: '', holder: '', rut: '', account: '', accountType: '', email: ''
   })
@@ -62,6 +64,23 @@ export default function Profile() {
   }
 
   const handleLogout = async () => { await supabase.auth.signOut() }
+
+  const handleUpgrade = async () => {
+    setUpgradeLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/mp-create-subscription`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session?.access_token}`, 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      if (data.init_point) window.open(data.init_point, '_blank')
+    } catch (err) {
+      console.error('Error upgrade:', err)
+    } finally {
+      setUpgradeLoading(false)
+    }
+  }
 
   const setT = (field) => (e) => setTransfer(prev => ({ ...prev, [field]: e.target.value }))
 
@@ -209,12 +228,12 @@ export default function Profile() {
 
       {/* Upgrade */}
       {!isPro && (
-        <a href={buildUpgradeUrl(user?.email)} target="_blank" rel="noreferrer"
-          className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all"
-          style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)', boxShadow: '0 8px 20px rgba(37,99,235,0.25)' }}>
-          <Zap size={18} />
-          Pasar a Pro — $5 USD/mes
-        </a>
+        <button onClick={handleUpgrade} disabled={upgradeLoading}
+          className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all disabled:opacity-60"
+          style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', boxShadow: '0 8px 20px rgba(124,58,237,0.25)' }}>
+          {upgradeLoading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
+          {upgradeLoading ? 'Preparando...' : 'Pasar a Pro — $4.990/mes'}
+        </button>
       )}
       {isPro && (
         <div className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white"

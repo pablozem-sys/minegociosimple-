@@ -1,7 +1,19 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { CheckCircle, ChevronDown, Clock, TrendingUp, Zap, Lock, Loader2 } from 'lucide-react'
-import { buildUpgradeUrl } from '../lib/plans'
+import { supabase } from '../lib/supabase'
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+
+async function getUpgradeUrl() {
+  const { data: { session } } = await supabase.auth.getSession()
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/mp-create-subscription`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${session?.access_token}`, 'Content-Type': 'application/json' },
+  })
+  const data = await res.json()
+  return data.init_point || null
+}
 
 const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
@@ -22,7 +34,16 @@ const inputClass = 'w-full bg-white border border-gray-200 rounded-2xl px-4 py-3
 
 export default function RegisterSale() {
   const { products, sales, addSale, isPro, monthlySalesCount, planLimits, userId } = useApp()
-  const upgradeUrl = buildUpgradeUrl()
+  const [upgradeLoading, setUpgradeLoading] = useState(false)
+
+  const handleUpgrade = async () => {
+    setUpgradeLoading(true)
+    try {
+      const url = await getUpgradeUrl()
+      if (url) window.open(url, '_blank')
+    } catch (err) { console.error(err) }
+    finally { setUpgradeLoading(false) }
+  }
   const [tab, setTab] = useState('registrar')
   const [form, setForm] = useState({
     productId: '',
@@ -116,7 +137,7 @@ export default function RegisterSale() {
 
       {tab === 'registrar' ? (
         atSalesLimit ? (
-          <UpgradeWall count={monthlySalesCount} limit={planLimits.maxMonthlySales} upgradeUrl={upgradeUrl} />
+          <UpgradeWall count={monthlySalesCount} limit={planLimits.maxMonthlySales} onUpgrade={handleUpgrade} upgradeLoading={upgradeLoading} />
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Contador de uso */}
@@ -152,9 +173,9 @@ export default function RegisterSale() {
                   </p>
                   <p className="text-xs text-amber-600 mt-0.5">
                     El plan gratis incluye {planLimits.maxMonthlySales} ventas/mes.{' '}
-                    <a href={upgradeUrl} target="_blank" rel="noreferrer" className="font-semibold underline">
+                    <button onClick={handleUpgrade} className="font-semibold underline">
                       Pasa a Pro
-                    </a>{' '}
+                    </button>{' '}
                     para ventas ilimitadas.
                   </p>
                 </div>
@@ -288,7 +309,7 @@ export default function RegisterSale() {
   )
 }
 
-function UpgradeWall({ count, limit, upgradeUrl }) {
+function UpgradeWall({ count, limit, onUpgrade, upgradeLoading }) {
   return (
     <div className="flex flex-col items-center justify-center py-10 px-2 text-center">
       <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mb-4">
@@ -304,15 +325,14 @@ function UpgradeWall({ count, limit, upgradeUrl }) {
         <div className="bg-[#DC4B56] h-2 rounded-full w-full" />
       </div>
 
-      <a
-        href={upgradeUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="w-full bg-[#7C3AED] text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-violet-200 active:scale-[0.98] transition-all"
+      <button
+        onClick={onUpgrade}
+        disabled={upgradeLoading}
+        className="w-full bg-[#7C3AED] text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-violet-200 active:scale-[0.98] transition-all disabled:opacity-60"
       >
-        <Zap size={18} />
-        Pasar a Pro — USD 5/mes
-      </a>
+        {upgradeLoading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
+        {upgradeLoading ? 'Preparando...' : 'Pasar a Pro — $4.990/mes'}
+      </button>
       <p className="text-xs text-gray-300 mt-3">Ventas ilimitadas + historial completo</p>
     </div>
   )

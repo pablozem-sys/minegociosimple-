@@ -1,7 +1,10 @@
 import { useApp } from '../context/AppContext'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingUp, ShoppingBag, AlertCircle, Package, Plus, ArrowRight, Zap } from 'lucide-react'
-import { buildUpgradeUrl } from '../lib/plans'
+import { useState } from 'react'
+import { supabase } from '../lib/supabase'
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 
 const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
@@ -30,7 +33,24 @@ export default function Dashboard() {
     products, monthlySalesCount, isPro, planLimits, userId,
   } = useApp()
 
-  const upgradeUrl = buildUpgradeUrl()
+  const [upgradeLoading, setUpgradeLoading] = useState(false)
+
+  const handleUpgrade = async () => {
+    setUpgradeLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/mp-create-subscription`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session?.access_token}`, 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      if (data.init_point) window.open(data.init_point, '_blank')
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setUpgradeLoading(false)
+    }
+  }
 
   const recentSales = sales.slice(0, 5)
 
@@ -126,15 +146,11 @@ export default function Dashboard() {
         <div className="bg-white rounded-[20px] p-4 border border-gray-100 shadow-sm mb-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-900">Uso del plan gratis</h2>
-            <a
-              href={upgradeUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1 text-xs text-[#7C3AED] font-semibold"
-            >
+            <button onClick={handleUpgrade} disabled={upgradeLoading}
+              className="flex items-center gap-1 text-xs text-[#7C3AED] font-semibold disabled:opacity-60">
               <Zap size={11} />
-              Pasar a Pro
-            </a>
+              {upgradeLoading ? 'Cargando...' : 'Pasar a Pro'}
+            </button>
           </div>
 
           {/* Productos */}
