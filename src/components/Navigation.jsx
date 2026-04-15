@@ -19,7 +19,7 @@ export default function Navigation() {
       <aside className="hidden md:flex flex-col w-56 h-screen border-r border-gray-100 bg-white px-3 py-6 shrink-0">
         <div className="px-3 mb-8">
           <span className="text-lg font-bold truncate" style={{ color: 'var(--color-primary)' }}>
-            {businessName || 'Mi Negocio'}
+            {businessName || 'Zimplex'}
           </span>
         </div>
         <nav className="flex flex-col gap-1 flex-1">

@@ -251,7 +251,7 @@ function AllInOneMockup() {
     <PhoneFrame>
       <div style={{ background: 'white', padding: '0 16px 10px', borderBottom: '1px solid #F1F5F9' }}>
         <p style={{ fontSize: 11, color: '#9CA3AF', fontFamily: POPPINS }}>Resumen</p>
-        <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', fontFamily: POPPINS }}>Mi Negocio</p>
+        <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', fontFamily: POPPINS }}>Zimplex</p>
       </div>
       <div style={{ padding: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {[
