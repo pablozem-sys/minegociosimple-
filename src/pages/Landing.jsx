@@ -22,7 +22,7 @@ const HERO_GRADIENTS = [
 
 const SIGNUP_URL  = 'https://zimplex.app/signup'
 const LOGIN_URL   = 'https://zimplex.app/login'
-const UPGRADE_URL = 'https://zimplexapp.lemonsqueezy.com/checkout/buy/aa87c828-1e44-484a-948b-a55f2f129f81'
+const UPGRADE_URL = 'https://www.mercadopago.cl/subscriptions/checkout?preapproval_plan_id=1d44657e88c94c5d91ccc04db531ebef'
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const problems = [
