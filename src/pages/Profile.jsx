@@ -2,14 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { User, Mail, Store, LogOut, Save, Loader2, Check, Zap, CreditCard } from 'lucide-react'
 import { useApp } from '../context/AppContext'
-import { UPGRADE_URL_BASE } from '../lib/plans'
-
-function buildUpgradeUrl(userId, email) {
-  const parts = []
-  if (userId) parts.push(`checkout[custom][user_id]=${userId}`)
-  if (email) parts.push(`checkout[email]=${encodeURIComponent(email)}`)
-  return parts.length ? `${UPGRADE_URL_BASE}?${parts.join('&')}` : UPGRADE_URL_BASE
-}
+import { buildUpgradeUrl } from '../lib/plans'
 
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:border-transparent'
 
@@ -216,7 +209,7 @@ export default function Profile() {
 
       {/* Upgrade */}
       {!isPro && (
-        <a href={buildUpgradeUrl(userId, user?.email)} target="_blank" rel="noreferrer"
+        <a href={buildUpgradeUrl(user?.email)} target="_blank" rel="noreferrer"
           className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all"
           style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)', boxShadow: '0 8px 20px rgba(37,99,235,0.25)' }}>
           <Zap size={18} />

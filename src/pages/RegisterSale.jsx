@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { CheckCircle, ChevronDown, Clock, TrendingUp, Zap, Lock, Loader2 } from 'lucide-react'
-import { UPGRADE_URL_BASE } from '../lib/plans'
+import { buildUpgradeUrl } from '../lib/plans'
 
 const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
@@ -22,9 +22,7 @@ const inputClass = 'w-full bg-white border border-gray-200 rounded-2xl px-4 py-3
 
 export default function RegisterSale() {
   const { products, sales, addSale, isPro, monthlySalesCount, planLimits, userId } = useApp()
-  const upgradeUrl = userId
-    ? `${UPGRADE_URL_BASE}?checkout[custom][user_id]=${userId}`
-    : UPGRADE_URL_BASE
+  const upgradeUrl = buildUpgradeUrl()
   const [tab, setTab] = useState('registrar')
   const [form, setForm] = useState({
     productId: '',

@@ -16,8 +16,14 @@ export const PLANS = {
 }
 
 export const UPGRADE_URL_BASE =
-  'https://zimplexapp.lemonsqueezy.com/checkout/buy/aa87c828-1e44-484a-948b-a55f2f129f81'
+  'https://www.mercadopago.cl/subscriptions/checkout?preapproval_plan_id=1d44657e88c94c5d91ccc04db531ebef'
 
 export const getPlanLimits = (plan) => PLANS[plan] ?? PLANS.free
 export const hasFeature = (plan, feature) =>
   (PLANS[plan] ?? PLANS.free).features[feature] ?? false
+
+// Construye la URL de checkout de MP con email pre-cargado (opcional)
+export const buildUpgradeUrl = (email) => {
+  if (!email) return UPGRADE_URL_BASE
+  return `${UPGRADE_URL_BASE}&payer_email=${encodeURIComponent(email)}`
+}

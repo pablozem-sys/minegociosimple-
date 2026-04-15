@@ -1,7 +1,7 @@
 import { useApp } from '../context/AppContext'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingUp, ShoppingBag, AlertCircle, Package, Plus, ArrowRight, Zap } from 'lucide-react'
-import { UPGRADE_URL_BASE } from '../lib/plans'
+import { buildUpgradeUrl } from '../lib/plans'
 
 const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
@@ -30,9 +30,7 @@ export default function Dashboard() {
     products, monthlySalesCount, isPro, planLimits, userId,
   } = useApp()
 
-  const upgradeUrl = userId
-    ? `${UPGRADE_URL_BASE}?checkout[custom][user_id]=${userId}`
-    : UPGRADE_URL_BASE
+  const upgradeUrl = buildUpgradeUrl()
 
   const recentSales = sales.slice(0, 5)
 

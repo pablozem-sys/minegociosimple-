@@ -1,6 +1,6 @@
 import { X, Zap } from 'lucide-react'
 import { useApp } from '../context/AppContext'
-import { UPGRADE_URL_BASE } from '../lib/plans'
+import { buildUpgradeUrl } from '../lib/plans'
 
 const VARIANTS = {
   products: {
@@ -22,10 +22,7 @@ const VARIANTS = {
 }
 
 export default function UpgradeModal({ variant = 'feature', onClose }) {
-  const { userId } = useApp()
-  const upgradeUrl = userId
-    ? `${UPGRADE_URL_BASE}?checkout[custom][user_id]=${userId}`
-    : UPGRADE_URL_BASE
+  const upgradeUrl = buildUpgradeUrl()
   const { title, text } = VARIANTS[variant] || VARIANTS.feature
 
   return (
