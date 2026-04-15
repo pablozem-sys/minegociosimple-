@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { CheckCircle, ChevronDown, Clock, TrendingUp, Zap, Lock } from 'lucide-react'
+import { CheckCircle, ChevronDown, Clock, TrendingUp, Zap, Lock, Loader2 } from 'lucide-react'
 import { UPGRADE_URL_BASE } from '../lib/plans'
 
 const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
@@ -36,6 +36,7 @@ export default function RegisterSale() {
   const [success, setSuccess] = useState(false)
   const [lastTotal, setLastTotal] = useState(0)
   const [error, setError] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
   const selectedProduct = products.find(p => p.id === form.productId)
   const total = (form.unitPrice || 0) * form.quantity
@@ -48,7 +49,13 @@ export default function RegisterSale() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.productId || !form.unitPrice || form.quantity < 1) return
+    if (submitting) return
+    if (selectedProduct && parseInt(form.quantity) > selectedProduct.stock) {
+      setError(`Stock insuficiente. Solo tienes ${selectedProduct.stock} ${selectedProduct.unit || 'unidades'} disponibles.`)
+      return
+    }
     setError(null)
+    setSubmitting(true)
     const { error } = await addSale({
       productId: form.productId,
       productName: selectedProduct.name,
@@ -58,6 +65,7 @@ export default function RegisterSale() {
       customer: form.customer,
       paymentMethod: form.paymentMethod,
     })
+    setSubmitting(false)
     if (error) {
       setError(error.message || 'Error al registrar la venta')
       return
@@ -268,9 +276,10 @@ export default function RegisterSale() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-[#7C3AED] active:scale-[0.98] text-white font-semibold py-4 rounded-2xl transition-all duration-200 shadow-lg shadow-violet-200 text-base"
+              disabled={submitting}
+              className="w-full bg-[#7C3AED] active:scale-[0.98] text-white font-semibold py-4 rounded-2xl transition-all duration-200 shadow-lg shadow-violet-200 text-base disabled:opacity-60 flex items-center justify-center gap-2"
             >
-              Registrar venta
+              {submitting ? <><Loader2 size={18} className="animate-spin" /> Registrando...</> : 'Registrar venta'}
             </button>
           </form>
         )

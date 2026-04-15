@@ -8,9 +8,12 @@ export default function AuthPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [registered, setRegistered] = useState(false) // estado post-registro
+  const [registered, setRegistered] = useState(false)
   const [resending, setResending] = useState(false)
   const [resent, setResent] = useState(false)
+  const [resetMode, setResetMode] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -48,10 +51,70 @@ export default function AuthPage() {
     if (!error) setResent(true)
   }
 
+  const handleResetPassword = async (e) => {
+    e.preventDefault()
+    if (!email) { setError('Ingresa tu email para recuperar tu contraseña.'); return }
+    setResetLoading(true)
+    setError('')
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    setResetLoading(false)
+    if (error) { setError('No pudimos enviar el email. Verifica que el correo sea correcto.'); return }
+    setResetSent(true)
+  }
+
+  // ── Pantalla recuperar contraseña ─────────────────────────────────────────
+  if (resetMode) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: '#FAF8FF' }}>
+        <div className="w-full max-w-sm">
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center">
+            <div className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #F5F3FF, #EDE9FE)' }}>
+              <Lock size={36} style={{ color: '#7C3AED' }} />
+            </div>
+            {resetSent ? (
+              <>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Revisa tu correo</h2>
+                <p className="text-sm text-gray-400 mb-1">Enviamos un link de recuperación a</p>
+                <p className="text-sm font-semibold mb-6" style={{ color: '#7C3AED' }}>{email}</p>
+                <p className="text-sm text-gray-500 leading-relaxed">Haz clic en el enlace del correo para crear una nueva contraseña.</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Recuperar contraseña</h2>
+                <p className="text-sm text-gray-400 mb-6 leading-relaxed">Ingresa tu email y te enviamos un link para crear una nueva contraseña.</p>
+                <form onSubmit={handleResetPassword} className="space-y-4 text-left">
+                  <div className="relative">
+                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      placeholder="tu@email.com" required
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-2xl text-sm outline-none focus:border-violet-400" />
+                  </div>
+                  {error && <p className="text-sm text-red-500 bg-red-50 px-4 py-3 rounded-2xl">{error}</p>}
+                  <button type="submit" disabled={resetLoading}
+                    className="w-full py-3.5 rounded-2xl text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+                    style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)' }}>
+                    {resetLoading ? <Loader2 size={18} className="animate-spin" /> : 'Enviar link de recuperación'}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+          <button onClick={() => { setResetMode(false); setResetSent(false); setError('') }}
+            className="w-full mt-4 text-sm text-gray-400 text-center">
+            ← Volver a iniciar sesión
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   // ── Pantalla post-registro ─────────────────────────────────────────────────
   if (registered) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: '#F0F4FF' }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: '#FAF8FF' }}>
         <div className="w-full max-w-sm">
 
           {/* Card */}
@@ -59,15 +122,15 @@ export default function AuthPage() {
 
             {/* Icono */}
             <div className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #EFF6FF, #F0FDFA)' }}>
-              <Mail size={36} style={{ color: '#3A86FF' }} />
+              style={{ background: 'linear-gradient(135deg, #F5F3FF, #EDE9FE)' }}>
+              <Mail size={36} style={{ color: '#7C3AED' }} />
             </div>
 
             <h2 className="text-xl font-bold text-gray-900 mb-2">Revisa tu correo</h2>
             <p className="text-sm text-gray-400 mb-1 leading-relaxed">
               Enviamos un link de confirmación a
             </p>
-            <p className="text-sm font-semibold mb-6" style={{ color: '#3A86FF' }}>{email}</p>
+            <p className="text-sm font-semibold mb-6" style={{ color: '#7C3AED' }}>{email}</p>
 
             <p className="text-sm text-gray-500 leading-relaxed mb-6">
               Haz clic en el botón del correo para activar tu cuenta y entrar a Zimplex.
@@ -194,6 +257,13 @@ export default function AuthPage() {
               </>
             )}
           </button>
+
+          {mode === 'login' && (
+            <button type="button" onClick={() => { setResetMode(true); setError('') }}
+              className="w-full text-center text-xs text-gray-400 pt-1 hover:text-[#7C3AED] transition-colors">
+              ¿Olvidaste tu contraseña?
+            </button>
+          )}
         </form>
       </div>
     </div>

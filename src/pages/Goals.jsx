@@ -16,7 +16,7 @@ function CreateGoalModal({ onClose, onAdd }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center" onClick={onClose}>
-      <div className="bg-white w-full max-w-[430px] rounded-t-[32px] p-6 pb-10" onClick={e => e.stopPropagation()}>
+      <div className="bg-white w-full max-w-[430px] rounded-t-[32px] p-6 pb-10" style={{ marginBottom: '84px' }} onClick={e => e.stopPropagation()}>
         <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-gray-900">Crear meta</h2>
@@ -59,7 +59,7 @@ function AddFundsModal({ goal, onClose, onAdd }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center" onClick={onClose}>
-      <div className="bg-white w-full max-w-[430px] rounded-t-[32px] p-6 pb-10" onClick={e => e.stopPropagation()}>
+      <div className="bg-white w-full max-w-[430px] rounded-t-[32px] p-6 pb-10" style={{ marginBottom: '84px' }} onClick={e => e.stopPropagation()}>
         <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-bold text-gray-900">Agregar progreso</h2>

@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { User, Mail, Store, LogOut, Save, Loader2, Check, Zap, CreditCard } from 'lucide-react'
 import { useApp } from '../context/AppContext'
-
-const BASE_UPGRADE_URL = 'https://zimplexapp.lemonsqueezy.com/checkout/buy/aa87c828-1e44-484a-948b-a55f2f129f81'
+import { UPGRADE_URL_BASE } from '../lib/plans'
 
 function buildUpgradeUrl(userId, email) {
   const parts = []
   if (userId) parts.push(`checkout[custom][user_id]=${userId}`)
   if (email) parts.push(`checkout[email]=${encodeURIComponent(email)}`)
-  return parts.length ? `${BASE_UPGRADE_URL}?${parts.join('&')}` : BASE_UPGRADE_URL
+  return parts.length ? `${UPGRADE_URL_BASE}?${parts.join('&')}` : UPGRADE_URL_BASE
 }
 
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:border-transparent'
@@ -22,6 +21,7 @@ export default function Profile() {
   const [bizName, setBizName]         = useState('')
   const [loading, setLoading]         = useState(false)
   const [success, setSuccess]         = useState(false)
+  const [saveError, setSaveError]     = useState('')
   const [transfer, setTransfer]       = useState({
     bank: '', holder: '', rut: '', account: '', accountType: '', email: ''
   })
@@ -47,7 +47,8 @@ export default function Profile() {
   const handleSave = async (e) => {
     e.preventDefault()
     setLoading(true)
-    await supabase.auth.updateUser({
+    setSaveError('')
+    const { error } = await supabase.auth.updateUser({
       data: {
         name,
         business_name:        bizName,
@@ -59,9 +60,10 @@ export default function Profile() {
         transfer_email:       transfer.email,
       }
     })
+    setLoading(false)
+    if (error) { setSaveError('No se pudo guardar. Intenta de nuevo.'); return }
     setBusinessName(bizName)
     setTransferDetails({ ...transfer })
-    setLoading(false)
     setSuccess(true)
     setTimeout(() => setSuccess(false), 2500)
   }
@@ -185,6 +187,7 @@ export default function Profile() {
         </div>
 
         {/* ── Guardar ── */}
+        {saveError && <p className="text-sm text-red-500 bg-red-50 px-4 py-3 rounded-2xl">{saveError}</p>}
         <button type="submit" disabled={loading}
           className="w-full text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-60"
           style={{ background: 'var(--color-primary)', boxShadow: '0 8px 20px var(--color-primary-shadow)' }}>

@@ -16,7 +16,7 @@ export const PLANS = {
 }
 
 export const UPGRADE_URL_BASE =
-  'https://minegociosimple.lemonsqueezy.com/checkout/buy/ef3fd402-6b9a-4693-9c4b-5a4974929973'
+  'https://zimplexapp.lemonsqueezy.com/checkout/buy/aa87c828-1e44-484a-948b-a55f2f129f81'
 
 export const getPlanLimits = (plan) => PLANS[plan] ?? PLANS.free
 export const hasFeature = (plan, feature) =>
