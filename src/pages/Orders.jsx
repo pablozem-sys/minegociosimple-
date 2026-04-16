@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
+import { supabase } from '../lib/supabase'
 import { Plus, X, ChevronDown, MessageCircle, Lock, Loader2, Trash2, Pencil } from 'lucide-react'
 import UpgradeModal from '../components/UpgradeModal'
 
@@ -276,18 +277,34 @@ function CreateOrderModal({ onClose, onAdd, products, transfer }) {
 
 // ─── EDIT ORDER MODAL ─────────────────────────────────────────────────────────
 function EditOrderModal({ order, onClose, onSave, products }) {
-  const parseItems = () => {
-    const names = order.productName?.split(', ') || [order.productName]
-    if (names.length === 1) {
-      return [{ productId: order.productId || '', productName: order.productName, quantity: order.quantity, unitPrice: Math.round(order.total / order.quantity), subtotal: order.total }]
-    }
-    return names.map(name => ({ productId: '', productName: name, quantity: 1, unitPrice: 0, subtotal: 0 }))
-  }
+  const [customer, setCustomer]     = useState(order.customer || '')
+  const [phone, setPhone]           = useState(order.customerPhone ? String(order.customerPhone).replace(/^56/, '') : '')
+  const [note, setNote]             = useState(order.note || '')
+  const [items, setItems]           = useState([])
+  const [loadingItems, setLoadingItems] = useState(true)
 
-  const [customer, setCustomer] = useState(order.customer || '')
-  const [phone, setPhone]       = useState(order.customerPhone ? String(order.customerPhone).replace(/^56/, '') : '')
-  const [note, setNote]         = useState(order.note || '')
-  const [items, setItems]       = useState(parseItems)
+  useEffect(() => {
+    supabase.from('order_items').select('*').eq('order_id', order.id).then(({ data }) => {
+      if (data && data.length > 0) {
+        setItems(data.map(i => ({
+          productId:   i.product_id  || '',
+          productName: i.product_name,
+          quantity:    i.quantity,
+          unitPrice:   i.unit_price,
+          subtotal:    i.subtotal,
+        })))
+      } else {
+        setItems([{
+          productId:   order.productId || '',
+          productName: order.productName,
+          quantity:    order.quantity,
+          unitPrice:   order.quantity > 0 ? Math.round(order.total / order.quantity) : 0,
+          subtotal:    order.total,
+        }])
+      }
+      setLoadingItems(false)
+    })
+  }, [order.id])
   const [current, setCurrent]   = useState(EMPTY_ITEM)
   const [itemError, setItemError] = useState(null)
   const [loading, setLoading]   = useState(false)
@@ -341,7 +358,13 @@ function EditOrderModal({ order, onClose, onSave, products }) {
           </button>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-4">
+        {loadingItems ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 size={24} className="animate-spin text-[#7C3AED]" />
+          </div>
+        ) : null}
+
+        <form onSubmit={handleSave} className={`space-y-4 ${loadingItems ? 'hidden' : ''}`}>
           <div>
             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 block">Cliente</label>
             <input value={customer} onChange={e => setCustomer(e.target.value)} placeholder="Nombre del cliente" className={inputClass} />
