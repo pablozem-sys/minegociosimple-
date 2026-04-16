@@ -17,6 +17,7 @@ export default function Profile() {
   const [success, setSuccess]         = useState(false)
   const [saveError, setSaveError]     = useState('')
   const [upgradeLoading, setUpgradeLoading] = useState(false)
+  const [upgradeError, setUpgradeError] = useState(false)
   const [transfer, setTransfer]       = useState({
     bank: '', holder: '', rut: '', account: '', accountType: '', email: ''
   })
@@ -67,6 +68,7 @@ export default function Profile() {
 
   const handleUpgrade = async () => {
     setUpgradeLoading(true)
+    setUpgradeError(false)
     const newWindow = window.open('', '_blank')
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -75,11 +77,16 @@ export default function Profile() {
         headers: { 'Authorization': `Bearer ${session?.access_token}`, 'Content-Type': 'application/json' },
       })
       const data = await res.json()
-      if (data.init_point && newWindow) newWindow.location.href = data.init_point
-      else newWindow?.close()
+      if (data.init_point && newWindow) {
+        newWindow.location.href = data.init_point
+      } else {
+        newWindow?.close()
+        setUpgradeError(true)
+      }
     } catch (err) {
       console.error('Error upgrade:', err)
       newWindow?.close()
+      setUpgradeError(true)
     } finally {
       setUpgradeLoading(false)
     }
@@ -235,7 +242,7 @@ export default function Profile() {
           className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all disabled:opacity-60"
           style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', boxShadow: '0 8px 20px rgba(124,58,237,0.25)' }}>
           {upgradeLoading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
-          {upgradeLoading ? 'Preparando...' : 'Pasar a Pro — $4.990/mes'}
+          {upgradeLoading ? 'Preparando...' : upgradeError ? 'Error — intenta de nuevo' : 'Pasar a Pro — $4.990/mes'}
         </button>
       )}
       {isPro && (

@@ -34,9 +34,11 @@ export default function Dashboard() {
   } = useApp()
 
   const [upgradeLoading, setUpgradeLoading] = useState(false)
+  const [upgradeError, setUpgradeError] = useState(false)
 
   const handleUpgrade = async () => {
     setUpgradeLoading(true)
+    setUpgradeError(false)
     const newWindow = window.open('', '_blank')
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -45,11 +47,16 @@ export default function Dashboard() {
         headers: { 'Authorization': `Bearer ${session?.access_token}`, 'Content-Type': 'application/json' },
       })
       const data = await res.json()
-      if (data.init_point && newWindow) newWindow.location.href = data.init_point
-      else newWindow?.close()
+      if (data.init_point && newWindow) {
+        newWindow.location.href = data.init_point
+      } else {
+        newWindow?.close()
+        setUpgradeError(true)
+      }
     } catch (err) {
       console.error(err)
       newWindow?.close()
+      setUpgradeError(true)
     } finally {
       setUpgradeLoading(false)
     }
@@ -152,7 +159,7 @@ export default function Dashboard() {
             <button onClick={handleUpgrade} disabled={upgradeLoading}
               className="flex items-center gap-1 text-xs text-[#7C3AED] font-semibold disabled:opacity-60">
               <Zap size={11} />
-              {upgradeLoading ? 'Cargando...' : 'Pasar a Pro'}
+              {upgradeLoading ? 'Cargando...' : upgradeError ? 'Error — intenta de nuevo' : 'Pasar a Pro'}
             </button>
           </div>
 

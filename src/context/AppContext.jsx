@@ -255,7 +255,7 @@ export function AppProvider({ children }) {
   const todayStr = fmt(new Date())
   const currentMonth = todayStr.slice(0, 7)
 
-  const todaySales = sales.filter(s => s.date === todayStr)
+  const todaySales = sales.filter(s => s.date?.startsWith(todayStr))
   const todayTotal = todaySales.reduce((sum, s) => sum + s.total, 0)
   const monthlySales = sales.filter(s => s.date?.startsWith(currentMonth))
   const monthTotal = monthlySales.reduce((sum, s) => sum + s.total, 0)
