@@ -10,6 +10,7 @@ import Goals from './pages/Goals'
 import AuthPage from './pages/auth/AuthPage'
 import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 import Profile from './pages/Profile'
+import Help from './pages/Help'
 import Landing from './pages/Landing'
 import './index.css'
 
@@ -22,6 +23,7 @@ function AppContent() {
     productos: <Products />,
     pedidos: <Orders />,
     metas: <Goals />,
+    ayuda: <Help />,
     perfil: <Profile />,
   }
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Check, ArrowRight, Star, BarChart2,
-  X, ChevronRight, Heart, ShoppingBag, AlertTriangle
+  X, ChevronRight, Heart, ShoppingBag, AlertTriangle, Send, Loader2
 } from 'lucide-react'
 import { GradientBackground } from '@/components/ui/gradient-background'
 
@@ -804,6 +804,158 @@ function FinalCTA({ onLogin }) {
   )
 }
 
+// ─── SUPPORT ──────────────────────────────────────────────────────────────────
+const TIPOS_LANDING = ['Duda general', 'Problema técnico', 'Cuenta / Facturación', 'Sugerencia de mejora', 'Otro']
+
+function Support() {
+  const [nombre, setNombre] = useState('')
+  const [email, setEmail]   = useState('')
+  const [tipo, setTipo]     = useState('')
+  const [mensaje, setMensaje] = useState('')
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [sent, setSent]     = useState(false)
+  const [submitError, setSubmitError] = useState('')
+
+  function validate() {
+    const e = {}
+    if (!nombre.trim()) e.nombre = 'Ingresa tu nombre.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) e.email = 'Correo inválido.'
+    if (!tipo) e.tipo = 'Selecciona una opción.'
+    if (mensaje.trim().length < 10) e.mensaje = 'Mínimo 10 caracteres.'
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  const handleSubmit = async (ev) => {
+    ev.preventDefault()
+    if (!validate()) return
+    setLoading(true)
+    setSubmitError('')
+    try {
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-support-email`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nombre: nombre.trim(), email: email.trim(), tipo, mensaje: mensaje.trim(), origen: 'landing' }),
+      })
+      const json = await res.json()
+      if (!res.ok || !json.success) throw new Error()
+      setSent(true)
+    } catch {
+      setSubmitError('No se pudo enviar. Intenta de nuevo.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inp = (hasErr) => ({
+    width: '100%', background: hasErr ? '#FFF5F5' : '#F8FAFC',
+    border: `1.5px solid ${hasErr ? '#FCA5A5' : '#E2E8F0'}`,
+    borderRadius: 14, padding: '13px 16px', fontSize: 14,
+    color: '#111827', outline: 'none', fontFamily: POPPINS,
+    boxSizing: 'border-box', transition: 'border-color .15s',
+  })
+
+  return (
+    <section style={{ padding: '80px 24px', background: '#FAFAFA' }} id="soporte">
+      <div style={{ maxWidth: 560, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <Chip>Soporte</Chip>
+          <h2 style={{ marginTop: 16, fontSize: 'clamp(1.6rem,3vw,2.2rem)', fontWeight: 700, color: '#111827', fontFamily: POPPINS }}>
+            ¿Tienes una duda?
+          </h2>
+          <p style={{ color: '#94A3B8', fontSize: 14, fontFamily: POPPINS, marginTop: 8 }}>
+            Cuéntanos en qué podemos ayudarte y te respondemos a la brevedad.
+          </p>
+        </div>
+
+        {sent ? (
+          <div style={{ background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 24, padding: '48px 32px', textAlign: 'center' }}>
+            <div style={{ width: 64, height: 64, background: '#EFF6FF', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <Check size={30} color={BLUE} strokeWidth={2.5} />
+            </div>
+            <h3 style={{ fontSize: 20, fontWeight: 700, color: '#111827', fontFamily: POPPINS, marginBottom: 8 }}>¡Mensaje enviado!</h3>
+            <p style={{ fontSize: 14, color: '#94A3B8', fontFamily: POPPINS, lineHeight: 1.6, marginBottom: 24 }}>
+              Recibimos tu consulta y te responderemos al correo <strong style={{ color: '#374151' }}>{email}</strong>.
+            </p>
+            <button
+              onClick={() => { setSent(false); setNombre(''); setEmail(''); setTipo(''); setMensaje('') }}
+              style={{ background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 12, padding: '10px 24px', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer', fontFamily: POPPINS }}
+            >
+              Enviar otro mensaje
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} noValidate style={{ background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 24, padding: '32px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 6, fontFamily: POPPINS }}>
+                  Nombre <span style={{ color: '#EF4444' }}>*</span>
+                </label>
+                <input value={nombre} onChange={e => { setNombre(e.target.value); setErrors(p => ({...p, nombre: ''})) }}
+                  placeholder="Tu nombre" style={inp(!!errors.nombre)} />
+                {errors.nombre && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4, fontFamily: POPPINS }}>{errors.nombre}</p>}
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 6, fontFamily: POPPINS }}>
+                  Correo <span style={{ color: '#EF4444' }}>*</span>
+                </label>
+                <input type="email" value={email} onChange={e => { setEmail(e.target.value); setErrors(p => ({...p, email: ''})) }}
+                  placeholder="tu@correo.com" style={inp(!!errors.email)} />
+                {errors.email && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4, fontFamily: POPPINS }}>{errors.email}</p>}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 6, fontFamily: POPPINS }}>
+                Tipo de consulta <span style={{ color: '#EF4444' }}>*</span>
+              </label>
+              <div style={{ position: 'relative' }}>
+                <select value={tipo} onChange={e => { setTipo(e.target.value); setErrors(p => ({...p, tipo: ''})) }}
+                  style={{ ...inp(!!errors.tipo), appearance: 'none', paddingRight: 36, cursor: 'pointer' }}>
+                  <option value="">Seleccionar...</option>
+                  {TIPOS_LANDING.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <ChevronRight size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%) rotate(90deg)', color: '#94A3B8', pointerEvents: 'none' }} />
+              </div>
+              {errors.tipo && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4, fontFamily: POPPINS }}>{errors.tipo}</p>}
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 6, fontFamily: POPPINS }}>
+                Mensaje <span style={{ color: '#EF4444' }}>*</span>
+              </label>
+              <textarea value={mensaje} onChange={e => { setMensaje(e.target.value); setErrors(p => ({...p, mensaje: ''})) }}
+                placeholder="Cuéntanos con detalle tu consulta o problema..."
+                rows={5} style={{ ...inp(!!errors.mensaje), resize: 'vertical', minHeight: 110 }} />
+              {errors.mensaje && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4, fontFamily: POPPINS }}>{errors.mensaje}</p>}
+            </div>
+
+            {submitError && (
+              <div style={{ background: '#FFF5F5', border: '1px solid #FCA5A5', borderRadius: 12, padding: '12px 16px', marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: '#EF4444', fontFamily: POPPINS, margin: 0 }}>{submitError}</p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+              <p style={{ fontSize: 11, color: '#94A3B8', fontFamily: POPPINS, maxWidth: 220 }}>
+                Tu correo solo se usa para responderte.
+              </p>
+              <button type="submit" disabled={loading}
+                style={{ background: GRAD, color: 'white', border: 'none', borderRadius: 14, padding: '12px 24px', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontFamily: POPPINS, opacity: loading ? 0.7 : 1, transition: 'opacity .15s' }}>
+                {loading ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Enviando...</> : <><Send size={16} /> Enviar mensaje</>}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </section>
+  )
+}
+
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
@@ -831,7 +983,7 @@ function Footer() {
             <div>
               <p style={{ fontWeight: 600, color: '#334155', fontSize: 12, marginBottom: 12, fontFamily: POPPINS, letterSpacing: '0.05em' }}>CUENTA</p>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {[[SIGNUP_URL,'Crear cuenta'],[LOGIN_URL,'Iniciar sesión']].map(([href, label]) => (
+                {[[SIGNUP_URL,'Crear cuenta'],[LOGIN_URL,'Iniciar sesión'],['#soporte','Soporte']].map(([href, label]) => (
                   <li key={label}><a href={href} style={{ fontSize: 13, color: '#94A3B8', textDecoration: 'none', fontFamily: POPPINS }}>{label}</a></li>
                 ))}
               </ul>
@@ -860,6 +1012,7 @@ export default function Landing({ onLogin }) {
       <Testimonials />
       <Pricing />
       <FAQ />
+      <Support />
       <FinalCTA onLogin={onLogin} />
       <Footer />
     </div>
