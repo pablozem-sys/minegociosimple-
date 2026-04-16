@@ -8,6 +8,7 @@ import Products from './pages/Products'
 import Orders from './pages/Orders'
 import Goals from './pages/Goals'
 import AuthPage from './pages/auth/AuthPage'
+import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 import Profile from './pages/Profile'
 import Landing from './pages/Landing'
 import './index.css'
@@ -74,6 +75,10 @@ export default function App() {
       </div>
     )
   }
+
+  // Detectar link de recuperación de contraseña
+  const hash = window.location.hash
+  if (hash.includes('type=recovery')) return <ResetPasswordPage />
 
   const hasSupabase = !!(import.meta.env.VITE_SUPABASE_URL)
   if (!session && hasSupabase) {
