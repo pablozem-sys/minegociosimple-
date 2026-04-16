@@ -60,7 +60,7 @@ export default function AuthPage() {
       redirectTo: `${window.location.origin}/reset-password`,
     })
     setResetLoading(false)
-    if (error) { setError('No pudimos enviar el email. Verifica que el correo sea correcto.'); return }
+    if (error) { setError(error.message || 'No pudimos enviar el email.'); return }
     setResetSent(true)
   }
 
