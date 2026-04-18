@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import { AppProvider, useApp } from './context/AppContext'
+import { LocaleProvider } from './context/LocaleContext'
 import Navigation from './components/Navigation'
 import Dashboard from './pages/Dashboard'
 import RegisterSale from './pages/RegisterSale'
@@ -11,8 +12,23 @@ import AuthPage from './pages/auth/AuthPage'
 import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 import Profile from './pages/Profile'
 import Help from './pages/Help'
+import IA from './pages/IA'
 import Landing from './pages/Landing'
 import './index.css'
+
+const IS_QA = import.meta.env.MODE === 'qa'
+
+function QABanner() {
+  if (!IS_QA) return null
+  return (
+    <div
+      style={{ background: '#F59E0B', color: '#1C1917', fontFamily: 'Nunito, sans-serif' }}
+      className="w-full text-center text-xs font-bold py-1 px-3 tracking-wide z-50 shrink-0"
+    >
+      ⚠️ AMBIENTE QA — datos de prueba, no es producción
+    </div>
+  )
+}
 
 function AppContent() {
   const { activeTab } = useApp()
@@ -23,29 +39,33 @@ function AppContent() {
     productos: <Products />,
     pedidos: <Orders />,
     metas: <Goals />,
+    ia: <IA />,
     ayuda: <Help />,
     perfil: <Profile />,
   }
 
   return (
-    <div className="flex h-screen" style={{ background: '#FAF8FF' }}>
-      {/* Sidebar — solo desktop */}
-      <div className="hidden md:flex">
-        <Navigation />
-      </div>
+    <div className="flex flex-col h-screen" style={{ background: '#FAF8FF' }}>
+      <QABanner />
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar — solo desktop */}
+        <div className="hidden md:flex">
+          <Navigation />
+        </div>
 
-      {/* Contenido principal */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto pb-20 md:pb-6">
-          <div className="max-w-3xl mx-auto">
-            {pages[activeTab]}
+        {/* Contenido principal */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto pb-20 md:pb-6">
+            <div className="max-w-3xl mx-auto">
+              {pages[activeTab]}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom nav — solo mobile */}
-      <div className="md:hidden">
-        <Navigation />
+        {/* Bottom nav — solo mobile */}
+        <div className="md:hidden">
+          <Navigation />
+        </div>
       </div>
     </div>
   )
@@ -89,8 +109,10 @@ export default function App() {
   }
 
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <LocaleProvider>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </LocaleProvider>
   )
 }

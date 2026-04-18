@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
+import { useLocale } from '../context/LocaleContext'
 import { Plus, Target, X, Trash2 } from 'lucide-react'
-
-const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent'
 
 function CreateGoalModal({ onClose, onAdd }) {
@@ -97,6 +96,7 @@ function AddFundsModal({ goal, onClose, onAdd }) {
 
 export default function Goals() {
   const { goals, addGoal, updateGoalProgress, deleteGoal } = useApp()
+  const { formatCurrency: fmt } = useLocale()
   const [showCreate, setShowCreate] = useState(false)
   const [addingTo, setAddingTo] = useState(null)
 

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { User, Mail, Store, LogOut, Save, Loader2, Check, Zap, CreditCard } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import { useLocale } from '../context/LocaleContext'
+import { COUNTRIES } from '../lib/countries'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 
@@ -9,6 +11,7 @@ const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py
 
 export default function Profile() {
   const { theme, setTheme, themes, isPro, userId, setBusinessName, setTransferDetails } = useApp()
+  const { t, countryCode, setCountry, country } = useLocale()
 
   const [user, setUser]               = useState(null)
   const [name, setName]               = useState('')
@@ -57,7 +60,7 @@ export default function Profile() {
       }
     })
     setLoading(false)
-    if (error) { setSaveError('No se pudo guardar. Intenta de nuevo.'); return }
+    if (error) { setSaveError(t('error_guardar')); return }
     setBusinessName(bizName)
     setTransferDetails({ ...transfer })
     setSuccess(true)
@@ -125,10 +128,10 @@ export default function Profile() {
 
         {/* ── Datos personales ── */}
         <div className="space-y-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Datos del negocio</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('datos_negocio')}</p>
 
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1.5 block">Tu nombre</label>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">{t('tu_nombre')}</label>
             <div className="relative">
               <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={name} onChange={e => setName(e.target.value)}
@@ -137,7 +140,7 @@ export default function Profile() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1.5 block">Nombre del negocio</label>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">{t('nombre_negocio')}</label>
             <div className="relative">
               <Store size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={bizName} onChange={e => setBizName(e.target.value)}
@@ -159,49 +162,48 @@ export default function Profile() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <CreditCard size={14} className="text-gray-400" />
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Datos de transferencia</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('datos_transferencia')}</p>
           </div>
-          <p className="text-xs text-gray-400 -mt-2">Se incluyen automáticamente en el mensaje de WhatsApp de cada pedido.</p>
+          <p className="text-xs text-gray-400 -mt-2">{t('datos_transferencia_desc')}</p>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Banco</label>
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">{t('banco')}</label>
               <input value={transfer.bank} onChange={setT('bank')}
                 placeholder="Ej: Banco Estado" className={inputClass} />
             </div>
 
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Nombre del titular</label>
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">{t('titular')}</label>
               <input value={transfer.holder} onChange={setT('holder')}
                 placeholder="Ej: María González" className={inputClass} />
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">RUT</label>
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">{t('id_field')}</label>
               <input value={transfer.rut} onChange={setT('rut')}
-                placeholder="12.345.678-9" className={inputClass} />
+                placeholder={country.idField} className={inputClass} />
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Tipo de cuenta</label>
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">{t('tipo_cuenta')}</label>
               <select value={transfer.accountType} onChange={setT('accountType')}
                 className={`${inputClass} appearance-none`}>
-                <option value="">Selecciona</option>
-                <option value="Cuenta corriente">Cuenta corriente</option>
-                <option value="Cuenta vista">Cuenta vista</option>
-                <option value="Cuenta de ahorro">Cuenta de ahorro</option>
-                <option value="Cuenta RUT">Cuenta RUT</option>
+                <option value="">{t('selecciona')}</option>
+                {country.accountTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
               </select>
             </div>
 
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">N° de cuenta</label>
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">{t('numero_cuenta')}</label>
               <input value={transfer.account} onChange={setT('account')}
                 placeholder="000000000" className={inputClass} />
             </div>
 
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Email para transferencia</label>
+              <label className="text-xs font-medium text-gray-500 mb-1.5 block">{t('email_transferencia')}</label>
               <input type="email" value={transfer.email} onChange={setT('email')}
                 placeholder="pagos@minegocio.cl" className={inputClass} />
             </div>
@@ -209,18 +211,29 @@ export default function Profile() {
         </div>
 
         {/* ── Guardar ── */}
+        {/* ── País ── */}
+        <div className="space-y-4">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('pais')}</p>
+          <select value={countryCode} onChange={e => setCountry(e.target.value)}
+            className={`${inputClass} appearance-none`}>
+            {Object.entries(COUNTRIES).map(([code, c]) => (
+              <option key={code} value={code}>{c.flag} {c.name}</option>
+            ))}
+          </select>
+        </div>
+
         {saveError && <p className="text-sm text-red-500 bg-red-50 px-4 py-3 rounded-2xl">{saveError}</p>}
         <button type="submit" disabled={loading}
           className="w-full text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-60"
           style={{ background: 'var(--color-primary)', boxShadow: '0 8px 20px var(--color-primary-shadow)' }}>
           {loading ? <Loader2 size={18} className="animate-spin" /> : success ? <Check size={18} /> : <Save size={18} />}
-          {success ? '¡Guardado!' : 'Guardar cambios'}
+          {success ? t('guardado') : t('guardar')}
         </button>
       </form>
 
       {/* Selector de color */}
       <div className="mb-6">
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 block">Color de la plataforma</label>
+        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 block">{t('color_plataforma')}</label>
         <div className="flex gap-3">
           {themes.map(t => (
             <button key={t.id} onClick={() => setTheme(t)}
@@ -242,14 +255,14 @@ export default function Profile() {
           className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white active:scale-[0.98] transition-all disabled:opacity-60"
           style={{ background: 'linear-gradient(135deg, #6366F1, #818CF8)', boxShadow: '0 8px 20px rgba(124,58,237,0.25)' }}>
           {upgradeLoading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
-          {upgradeLoading ? 'Preparando...' : upgradeError ? 'Error — intenta de nuevo' : 'Pasar a Pro — $4.990/mes'}
+          {upgradeLoading ? t('preparando') : upgradeError ? t('error_intentar') : `${t('pasar_pro')} — $4.990/mes`}
         </button>
       )}
       {isPro && (
         <div className="w-full mb-3 py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-white"
           style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)' }}>
           <Zap size={18} />
-          Plan Pro activo
+          {t('plan_pro')}
         </div>
       )}
 
@@ -257,7 +270,7 @@ export default function Profile() {
       <button onClick={handleLogout}
         className="w-full bg-white border border-gray-200 text-gray-600 font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
         <LogOut size={18} />
-        Cerrar sesión
+        {t('cerrar_sesion')}
       </button>
     </div>
   )

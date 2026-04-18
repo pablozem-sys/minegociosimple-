@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
+import { useLocale } from '../context/LocaleContext'
 import { Plus, AlertTriangle, Package, X, Trash2, Pencil } from 'lucide-react'
 import UpgradeModal from '../components/UpgradeModal'
-
-const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent'
 
 const UNITS = ['unidades', 'kg', 'gramos', 'litros', 'ml', 'metros', 'cajas', 'docenas', 'bolsas', 'porciones']
@@ -134,6 +133,7 @@ function DeleteConfirmModal({ product, onClose, onConfirm }) {
 
 export default function Products() {
   const { products, isPro, planLimits, addProduct, updateProduct, deleteProduct } = useApp()
+  const { formatCurrency: fmt } = useLocale()
   const [showAdd, setShowAdd] = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)

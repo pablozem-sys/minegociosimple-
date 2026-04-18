@@ -1,12 +1,11 @@
 import { useApp } from '../context/AppContext'
+import { useLocale } from '../context/LocaleContext'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingUp, ShoppingBag, AlertCircle, Package, Plus, ArrowRight, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-
-const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
 const paymentColors = {
   efectivo: 'text-emerald-600 bg-emerald-50',
@@ -15,11 +14,11 @@ const paymentColors = {
 }
 const paymentLabels = { efectivo: 'Efectivo', transferencia: 'Transf.', tarjeta: 'Tarjeta' }
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, formatter }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white border border-gray-100 rounded-2xl px-3 py-2 shadow-lg">
-        <p className="text-[#6366F1] font-semibold text-sm">{fmt(payload[0].value)}</p>
+        <p className="text-[#6366F1] font-semibold text-sm">{formatter(payload[0].value)}</p>
       </div>
     )
   }
@@ -32,6 +31,7 @@ export default function Dashboard() {
     last7Days, todaySalesCount, sales, setActiveTab,
     products, monthlySalesCount, isPro, planLimits, userId,
   } = useApp()
+  const { formatCurrency: fmt, t } = useLocale()
 
   const [upgradeLoading, setUpgradeLoading] = useState(false)
   const [upgradeError, setUpgradeError] = useState(false)
@@ -66,7 +66,7 @@ export default function Dashboard() {
 
   const cards = [
     {
-      label: 'Ventas Hoy',
+      label: t('ventas_hoy'),
       value: fmt(todayTotal),
       sub: `${todaySalesCount} transacciones`,
       icon: TrendingUp,
@@ -74,7 +74,7 @@ export default function Dashboard() {
       bg: 'bg-indigo-50',
     },
     {
-      label: 'Ventas del Mes',
+      label: t('ventas_mes'),
       value: fmt(monthTotal),
       sub: 'Este mes',
       icon: ShoppingBag,
@@ -82,7 +82,7 @@ export default function Dashboard() {
       bg: 'bg-green-50',
     },
     {
-      label: 'Pedidos Pendientes',
+      label: t('pedidos_pendientes'),
       value: pendingOrders,
       sub: 'Por entregar',
       icon: AlertCircle,
@@ -91,9 +91,9 @@ export default function Dashboard() {
       tab: 'pedidos',
     },
     {
-      label: 'Stock Bajo',
+      label: t('stock_bajo'),
       value: lowStockProducts,
-      sub: 'Productos',
+      sub: t('productos'),
       icon: Package,
       color: lowStockProducts > 0 ? 'text-[#DC4B56]' : 'text-gray-400',
       bg: lowStockProducts > 0 ? 'bg-red-50' : 'bg-gray-50',
@@ -206,7 +206,7 @@ export default function Dashboard() {
       {/* Chart */}
       <div className="bg-white rounded-[20px] p-4 border border-gray-100 shadow-sm mb-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-gray-900">Ventas últimos 7 días</h2>
+          <h2 className="text-sm font-semibold text-gray-900">{t('ultimos_7_dias')}</h2>
           <span className="text-xs text-gray-400">CLP</span>
         </div>
         <ResponsiveContainer width="100%" height={140}>
@@ -221,7 +221,7 @@ export default function Dashboard() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
             <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false}
               tickFormatter={(v) => v >= 1000 ? `${v / 1000}k` : v} />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip formatter={fmt} />} />
             <Area type="monotone" dataKey="total" stroke="#6366F1" strokeWidth={2.5}
               fill="url(#colorSales)" dot={{ r: 3, fill: '#6366F1', strokeWidth: 0 }}
               activeDot={{ r: 5, fill: '#6366F1' }} />

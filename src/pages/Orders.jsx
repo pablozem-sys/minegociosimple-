@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
+import { useLocale } from '../context/LocaleContext'
 import { supabase } from '../lib/supabase'
 import { Plus, X, ChevronDown, MessageCircle, Lock, Loader2, Trash2, Pencil } from 'lucide-react'
 import UpgradeModal from '../components/UpgradeModal'
 
-const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent'
 
 const statusConfig = {
@@ -13,7 +13,7 @@ const statusConfig = {
   entregado: { label: 'Entregado', color: 'text-[#7CD09B]', bg: 'bg-green-50',  dot: 'bg-[#7CD09B]' },
 }
 
-function buildWhatsAppMsg(customer, items, total, note, transfer) {
+function buildWhatsAppMsg(customer, items, total, note, transfer, fmt) {
   const lines = [`Hola ${customer} 👋`, ``, `Tu pedido está confirmado:`]
   items.forEach(({ quantity, productName, subtotal }) => {
     lines.push(`• ${quantity} × ${productName} — ${fmt(subtotal)}`)
@@ -45,6 +45,7 @@ function cleanPhone(raw) {
 const EMPTY_ITEM = { productId: '', quantity: 1, unitPrice: '' }
 
 function CreateOrderModal({ onClose, onAdd, products, transfer }) {
+  const { formatCurrency: fmt } = useLocale()
   const [customer, setCustomer] = useState('')
   const [phone, setPhone]       = useState('')
   const [note, setNote]         = useState('')
@@ -123,7 +124,7 @@ function CreateOrderModal({ onClose, onAdd, products, transfer }) {
     const { data: order, error: orderErr } = await onAdd(buildPayload())
     if (orderErr) { setError('Error al crear el pedido.'); setLoadingWA(false); return }
 
-    const msg = buildWhatsAppMsg(order.customer, items, grandTotal, note, transfer)
+    const msg = buildWhatsAppMsg(order.customer, items, grandTotal, note, transfer, fmt)
     const p = phone ? cleanPhone(phone) : ''
     window.open(p ? `https://wa.me/${p}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
     setLoadingWA(false)
@@ -277,6 +278,7 @@ function CreateOrderModal({ onClose, onAdd, products, transfer }) {
 
 // ─── EDIT ORDER MODAL ─────────────────────────────────────────────────────────
 function EditOrderModal({ order, onClose, onSave, products }) {
+  const { formatCurrency: fmt } = useLocale()
   const [customer, setCustomer]     = useState(order.customer || '')
   const [phone, setPhone]           = useState(order.customerPhone ? String(order.customerPhone).replace(/^56/, '') : '')
   const [note, setNote]             = useState(order.note || '')
@@ -476,6 +478,7 @@ function EditOrderModal({ order, onClose, onSave, products }) {
 // ─── ORDERS PAGE ──────────────────────────────────────────────────────────────
 export default function Orders() {
   const { orders, products, addOrder, updateOrderStatus, updateOrder, deleteOrder, transferDetails } = useApp()
+  const { formatCurrency: fmt } = useLocale()
   const [showCreate, setShowCreate] = useState(false)
   const [filter, setFilter]         = useState('todos')
 
@@ -549,7 +552,7 @@ function OrderCard({ order, onStatusChange, onUpdate, onDelete, transfer, produc
   const handleWhatsApp = () => {
     if (!isPro) { setShowUpgrade(true); return }
     const items = [{ quantity: order.quantity, productName: order.productName, subtotal: order.total }]
-    const msg = buildWhatsAppMsg(order.customer, items, order.total, order.note, transfer)
+    const msg = buildWhatsAppMsg(order.customer, items, order.total, order.note, transfer, fmt)
     const url = order.customerPhone
       ? `https://wa.me/${order.customerPhone}?text=${encodeURIComponent(msg)}`
       : `https://wa.me/?text=${encodeURIComponent(msg)}`

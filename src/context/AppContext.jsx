@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { THEMES, DEFAULT_THEME, applyTheme } from '../lib/themes'
 import { getPlanLimits } from '../lib/plans'
+import { useLocale } from './LocaleContext'
 
 const AppContext = createContext(null)
 
@@ -15,6 +16,7 @@ const fmt = (d) => {
 const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return fmt(d) }
 
 export function AppProvider({ children }) {
+  const { country } = useLocale()
   const [products, setProducts] = useState([])
   const [sales, setSales] = useState([])
   const [orders, setOrders] = useState([])
@@ -354,7 +356,7 @@ export function AppProvider({ children }) {
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = daysAgo(6 - i)
     const total = sales.filter(s => s.date === date).reduce((sum, s) => sum + s.total, 0)
-    const label = new Date(date + 'T12:00:00').toLocaleDateString('es-CL', { weekday: 'short' })
+    const label = new Date(date + 'T12:00:00').toLocaleDateString(country.locale, { weekday: 'short' })
     return { date, label: label.charAt(0).toUpperCase() + label.slice(1), total }
   })
 

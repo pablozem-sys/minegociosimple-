@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
+import { useLocale } from '../context/LocaleContext'
 import { CheckCircle, ChevronDown, Clock, TrendingUp, Zap, Lock, Loader2, Plus, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
@@ -15,7 +16,6 @@ async function getUpgradeUrl() {
   return data.init_point || null
 }
 
-const fmt = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
 const paymentMethods = [
   { id: 'efectivo',      label: 'Efectivo',      emoji: '💵' },
@@ -36,6 +36,7 @@ const EMPTY_ITEM = { productId: '', quantity: 1, unitPrice: '' }
 
 export default function RegisterSale() {
   const { products, sales, addSale, isPro, monthlySalesCount, planLimits } = useApp()
+  const { formatCurrency: fmt, country, t } = useLocale()
   const [upgradeLoading, setUpgradeLoading] = useState(false)
 
   const handleUpgrade = async () => {
@@ -390,13 +391,13 @@ function UpgradeWall({ count, limit, onUpgrade, upgradeLoading }) {
   )
 }
 
-const fmtTime = (isoString) => {
-  if (!isoString) return ''
-  return new Date(isoString).toLocaleTimeString('es-CL', { timeZone: 'America/Santiago', hour: '2-digit', minute: '2-digit' })
-}
-
 function SaleHistory({ sales }) {
-  const today = new Date().toLocaleString('sv-SE', { timeZone: 'America/Santiago' }).slice(0, 10)
+  const { country, formatCurrency: fmt, t } = useLocale()
+  const fmtTime = (isoString) => {
+    if (!isoString) return ''
+    return new Date(isoString).toLocaleTimeString(country.locale, { timeZone: country.timezone, hour: '2-digit', minute: '2-digit' })
+  }
+  const today = new Date().toLocaleString('sv-SE', { timeZone: country.timezone }).slice(0, 10)
   const todaySales = sales.filter(s => s.date === today)
   const todayTotal = todaySales.reduce((sum, s) => sum + s.total, 0)
 
@@ -419,11 +420,11 @@ function SaleHistory({ sales }) {
   const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
 
   const dateLabel = (dateStr) => {
-    if (dateStr === today) return 'Hoy'
+    if (dateStr === today) return t('hoy')
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
-    if (dateStr === yesterday.toLocaleString('sv-SE', { timeZone: 'America/Santiago' }).slice(0, 10)) return 'Ayer'
-    return new Date(dateStr + 'T12:00:00').toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'short' })
+    if (dateStr === yesterday.toLocaleString('sv-SE', { timeZone: country.timezone }).slice(0, 10)) return t('ayer')
+    return new Date(dateStr + 'T12:00:00').toLocaleDateString(country.locale, { weekday: 'long', day: 'numeric', month: 'short' })
   }
 
   return (
