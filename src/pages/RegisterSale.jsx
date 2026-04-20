@@ -442,6 +442,75 @@ function downloadDayReport(todaySales, today, country) {
   URL.revokeObjectURL(url)
 }
 
+function DaySummary({ todaySales, fmt }) {
+  const [open, setOpen] = useState(false)
+
+  const byPayment = paymentMethods.map(pm => ({
+    ...pm,
+    total: todaySales.filter(s => s.paymentMethod === pm.id).reduce((sum, s) => sum + s.total, 0),
+    count: todaySales.filter(s => s.paymentMethod === pm.id).length,
+  })).filter(pm => pm.count > 0)
+
+  const byProduct = Object.values(
+    todaySales.reduce((acc, s) => {
+      if (!acc[s.productName]) acc[s.productName] = { name: s.productName, qty: 0, total: 0 }
+      acc[s.productName].qty += s.quantity
+      acc[s.productName].total += s.total
+      return acc
+    }, {})
+  ).sort((a, b) => b.total - a.total).slice(0, 5)
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3.5 active:bg-gray-50 transition-colors"
+      >
+        <span className="text-sm font-semibold text-gray-900">Resumen del día</span>
+        <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 space-y-4 border-t border-gray-50">
+          {/* Por método de pago */}
+          <div className="pt-3">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">Por método de pago</p>
+            <div className="space-y-2">
+              {byPayment.map(pm => (
+                <div key={pm.id} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{pm.emoji}</span>
+                    <span className="text-sm text-gray-700">{pm.label}</span>
+                    <span className="text-xs text-gray-400">{pm.count} venta{pm.count !== 1 ? 's' : ''}</span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900">{fmt(pm.total)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Por producto */}
+          <div>
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">Productos vendidos</p>
+            <div className="space-y-2">
+              {byProduct.map(p => (
+                <div key={p.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#6366F1] flex-shrink-0" />
+                    <span className="text-sm text-gray-700 truncate">{p.name}</span>
+                    <span className="text-xs text-gray-400 flex-shrink-0">×{p.qty}</span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900 flex-shrink-0 ml-2">{fmt(p.total)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function SaleHistory({ sales }) {
   const { country, formatCurrency: fmt, t } = useLocale()
   const fmtTime = (isoString) => {
@@ -501,6 +570,8 @@ function SaleHistory({ sales }) {
           </button>
         </div>
       )}
+
+      {todaySales.length > 0 && <DaySummary todaySales={todaySales} fmt={fmt} />}
 
       {sortedDates.map(date => {
         const daySales = grouped[date]
