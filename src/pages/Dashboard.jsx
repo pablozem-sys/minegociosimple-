@@ -4,6 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { TrendingUp, ShoppingBag, AlertCircle, Package, Plus, ArrowRight, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import OnboardingChecklist from '../components/OnboardingChecklist'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 
@@ -120,6 +121,8 @@ export default function Dashboard() {
           <span className="text-white font-bold text-sm">M</span>
         </div>
       </div>
+
+      <OnboardingChecklist />
 
       {/* Cards grid */}
       <div className="grid grid-cols-2 gap-3 mb-5">
