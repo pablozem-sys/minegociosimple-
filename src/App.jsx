@@ -73,18 +73,27 @@ function AppContent() {
 
 export default function App() {
   const [session, setSession] = useState(undefined) // undefined = loading
+  const [isRecovery, setIsRecovery] = useState(false)
   const path = window.location.pathname
   const [showAuth, setShowAuth] = useState(path === '/login' || path === '/signup')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    }).catch(() => {
-      setSession(null)
+    // onAuthStateChange es la fuente de verdad — incluye el procesamiento del hash de recovery
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecovery(true)
+        setSession(session)
+      } else {
+        setIsRecovery(false)
+        setSession(session)
+      }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+    // Inicializar sesión desde caché local (solo para el estado inicial de carga)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(prev => prev === undefined ? (session ?? null) : prev)
+    }).catch(() => {
+      setSession(prev => prev === undefined ? null : prev)
     })
 
     return () => subscription.unsubscribe()
@@ -98,9 +107,7 @@ export default function App() {
     )
   }
 
-  // Detectar link de recuperación de contraseña
-  const hash = window.location.hash
-  if (hash.includes('type=recovery')) return <ResetPasswordPage />
+  if (isRecovery) return <ResetPasswordPage />
 
   const hasSupabase = !!(import.meta.env.VITE_SUPABASE_URL)
   if (!session && hasSupabase) {

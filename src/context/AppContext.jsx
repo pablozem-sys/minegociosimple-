@@ -49,19 +49,43 @@ export function AppProvider({ children }) {
 
   // ─── GET USER ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUserId(user?.id ?? 'demo')
-      setBusinessName(user?.user_metadata?.business_name || '')
-      const m = user?.user_metadata || {}
-      setTransferDetails({
-        bank:        m.transfer_bank        || '',
-        holder:      m.transfer_holder      || '',
-        rut:         m.transfer_rut         || '',
-        account:     m.transfer_account     || '',
-        accountType: m.transfer_account_type|| '',
-        email:       m.transfer_email       || '',
+    supabase.auth.getUser()
+      .then(({ data: { user }, error }) => {
+        if (error || !user) {
+          // Token inválido o expirado — forzar cierre de sesión
+          supabase.auth.signOut()
+          return
+        }
+        setUserId(user.id)
+        setBusinessName(user.user_metadata?.business_name || '')
+        const m = user.user_metadata || {}
+        setTransferDetails({
+          bank:        m.transfer_bank        || '',
+          holder:      m.transfer_holder      || '',
+          rut:         m.transfer_rut         || '',
+          account:     m.transfer_account     || '',
+          accountType: m.transfer_account_type|| '',
+          email:       m.transfer_email       || '',
+        })
       })
-    })
+      .catch(() => {
+        // Error de red — reintentar con la sesión cacheada como fallback
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            setUserId(session.user.id)
+            setBusinessName(session.user.user_metadata?.business_name || '')
+            const m = session.user.user_metadata || {}
+            setTransferDetails({
+              bank:        m.transfer_bank        || '',
+              holder:      m.transfer_holder      || '',
+              rut:         m.transfer_rut         || '',
+              account:     m.transfer_account     || '',
+              accountType: m.transfer_account_type|| '',
+              email:       m.transfer_email       || '',
+            })
+          }
+        })
+      })
   }, [])
 
   // ─── LOAD DATA ────────────────────────────────────────────────────────────
