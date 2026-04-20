@@ -2,11 +2,23 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { ShoppingBag, Mail, Lock, ArrowRight, Loader2, CheckCircle, RefreshCw } from 'lucide-react'
 
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18L12.048 13.56C11.24 14.1 10.211 14.42 9 14.42c-2.392 0-4.415-1.615-5.14-3.786H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+      <path d="M3.86 10.634A5.417 5.417 0 013.58 9c0-.566.098-1.115.28-1.634V5.034H.957A8.997 8.997 0 000 9c0 1.452.348 2.827.957 4.034l2.903-2.4z" fill="#FBBC05"/>
+      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 5.034L3.86 7.366C4.585 5.195 6.608 3.58 9 3.58z" fill="#EA4335"/>
+    </svg>
+  )
+}
+
 export default function AuthPage() {
   const [mode, setMode] = useState('login') // 'login' | 'register'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState('')
   const [registered, setRegistered] = useState(false)
   const [resending, setResending] = useState(false)
@@ -14,6 +26,16 @@ export default function AuthPage() {
   const [resetMode, setResetMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true)
+    setError('')
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    })
+    if (error) { setError('No se pudo conectar con Google. Intenta de nuevo.'); setGoogleLoading(false) }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -200,6 +222,23 @@ export default function AuthPage() {
           >
             Registrarse
           </button>
+        </div>
+
+        {/* Google */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={googleLoading}
+          className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border-2 border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98] transition-all disabled:opacity-60 mb-4"
+        >
+          {googleLoading ? <Loader2 size={18} className="animate-spin text-gray-400" /> : <GoogleIcon />}
+          Continuar con Google
+        </button>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-xs text-gray-400 font-medium">o con email</span>
+          <div className="flex-1 h-px bg-gray-200" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
