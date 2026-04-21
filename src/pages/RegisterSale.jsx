@@ -374,7 +374,7 @@ export default function RegisterSale() {
           </form>
         </>
       ) : (
-        <SaleHistory sales={sales} />
+        <SaleHistory sales={sales} isPro={isPro} onUpgrade={handleUpgrade} upgradeLoading={upgradeLoading} />
       )}
     </div>
   )
@@ -451,6 +451,71 @@ function downloadDayReport(todaySales, today, country) {
   URL.revokeObjectURL(url)
 }
 
+function downloadMonthReport(sales, year, month, country) {
+  const fmtMoney = (n) => new Intl.NumberFormat(country.locale, {
+    style: 'currency', currency: country.currency, maximumFractionDigits: 0,
+  }).format(n)
+  const methodLabel = { efectivo: 'Efectivo', transferencia: 'Transferencia', tarjeta: 'Tarjeta' }
+  const e = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
+  const row = (...cols) => cols.map(e).join(',')
+  const sep = () => row('', '', '', '', '', '', '', '')
+  const title = (t) => row(t, '', '', '', '', '', '', '')
+
+  const prefix = `${year}-${String(month).padStart(2, '0')}`
+  const monthSales = sales.filter(s => s.date?.startsWith(prefix))
+  const totalMes = monthSales.reduce((sum, s) => sum + s.total, 0)
+  const monthName = new Date(`${prefix}-15`).toLocaleDateString(country.locale, { month: 'long', year: 'numeric' })
+
+  const porMetodo = monthSales.reduce((acc, s) => {
+    const k = methodLabel[s.paymentMethod] || s.paymentMethod
+    if (!acc[k]) acc[k] = { total: 0, count: 0 }
+    acc[k].total += s.total; acc[k].count += 1
+    return acc
+  }, {})
+
+  const porProducto = Object.values(
+    monthSales.reduce((acc, s) => {
+      if (!acc[s.productName]) acc[s.productName] = { name: s.productName, qty: 0, total: 0 }
+      acc[s.productName].qty += s.quantity; acc[s.productName].total += s.total
+      return acc
+    }, {})
+  ).sort((a, b) => b.total - a.total)
+
+  const fmtTime = (iso) => iso
+    ? new Date(iso).toLocaleTimeString(country.locale, { timeZone: country.timezone, hour: '2-digit', minute: '2-digit' })
+    : ''
+
+  const lines = [
+    title('REPORTE MENSUAL DE VENTAS — ZIMPLEX'),
+    row('Período', monthName, '', '', '', '', '', ''),
+    row('Total de ventas', monthSales.length, '', '', '', '', '', ''),
+    row('Total del mes', fmtMoney(totalMes), '', '', '', '', '', ''),
+    sep(),
+    title('DETALLE DE VENTAS'),
+    row('#', 'Fecha', 'Hora', 'Producto', 'Cantidad', 'Precio unit.', 'Total', 'Cliente', 'Método'),
+    ...monthSales.map((s, i) =>
+      row(i + 1, s.date, fmtTime(s.createdAt), s.productName, s.quantity, fmtMoney(s.unitPrice ?? 0), fmtMoney(s.total), s.customer || 'Sin cliente', methodLabel[s.paymentMethod] || s.paymentMethod)
+    ),
+    sep(),
+    title('RESUMEN POR MÉTODO DE PAGO'),
+    row('Método', 'Ventas', 'Total', '', '', '', '', ''),
+    ...Object.entries(porMetodo).map(([m, v]) => row(m, v.count, fmtMoney(v.total), '', '', '', '', '')),
+    sep(),
+    title('RESUMEN POR PRODUCTO'),
+    row('Producto', 'Unidades vendidas', 'Total', '', '', '', '', ''),
+    ...porProducto.map(p => row(p.name, p.qty, fmtMoney(p.total), '', '', '', '', '')),
+  ]
+
+  const csv = lines.join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `ventas-${prefix}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 function DaySummary({ todaySales, fmt }) {
   const [open, setOpen] = useState(false)
 
@@ -520,7 +585,7 @@ function DaySummary({ todaySales, fmt }) {
   )
 }
 
-function SaleHistory({ sales }) {
+function SaleHistory({ sales, isPro, onUpgrade, upgradeLoading }) {
   const { country, formatCurrency: fmt, t } = useLocale()
   const fmtTime = (isoString) => {
     if (!isoString) return ''
@@ -529,6 +594,13 @@ function SaleHistory({ sales }) {
   const today = new Date().toLocaleString('sv-SE', { timeZone: country.timezone }).slice(0, 10)
   const todaySales = sales.filter(s => s.date === today)
   const todayTotal = todaySales.reduce((sum, s) => sum + s.total, 0)
+
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth() + 1
+  const currentMonthPrefix = `${currentYear}-${String(currentMonth).padStart(2, '0')}`
+  const monthSalesCount = sales.filter(s => s.date?.startsWith(currentMonthPrefix)).length
+  const monthName = now.toLocaleDateString(country.locale, { month: 'long', year: 'numeric' })
 
   if (sales.length === 0) {
     return (
@@ -558,6 +630,33 @@ function SaleHistory({ sales }) {
 
   return (
     <div className="space-y-5">
+      {/* Exportar CSV mensual */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-gray-900">Exportar {monthName}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{monthSalesCount} venta{monthSalesCount !== 1 ? 's' : ''} este mes</p>
+        </div>
+        {isPro ? (
+          <button
+            onClick={() => downloadMonthReport(sales, currentYear, currentMonth, country)}
+            disabled={monthSalesCount === 0}
+            className="flex items-center gap-1.5 bg-[#6366F1] text-white text-xs font-semibold px-3 py-2.5 rounded-xl active:scale-95 transition-all disabled:opacity-40 flex-shrink-0 ml-3"
+          >
+            <Download size={13} />
+            Descargar CSV
+          </button>
+        ) : (
+          <button
+            onClick={onUpgrade}
+            disabled={upgradeLoading}
+            className="flex items-center gap-1.5 bg-gray-900 text-white text-xs font-semibold px-3 py-2.5 rounded-xl active:scale-95 transition-all disabled:opacity-60 flex-shrink-0 ml-3"
+          >
+            {upgradeLoading ? <Loader2 size={13} className="animate-spin" /> : <Lock size={13} />}
+            Pro
+          </button>
+        )}
+      </div>
+
       {todaySales.length > 0 && (
         <div className="bg-gradient-to-r from-[#6366F1] to-[#818CF8] rounded-2xl p-4 shadow-lg shadow-indigo-200">
           <div className="flex items-center justify-between">
