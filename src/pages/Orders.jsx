@@ -219,7 +219,7 @@ function CreateOrderModal({ onClose, onAdd, products, transfer }) {
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
                   <input type="number" value={current.unitPrice}
-                    onChange={e => setCurrent(c => ({ ...c, unitPrice: parseInt(e.target.value) || '' }))}
+                    onChange={e => setCurrent(c => ({ ...c, unitPrice: e.target.value === '' ? '' : parseInt(e.target.value) }))}
                     placeholder="0" className={`${inputClass} pl-8 bg-white`} />
                 </div>
               </div>
@@ -433,7 +433,7 @@ function EditOrderModal({ order, onClose, onSave, products }) {
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
                   <input type="number" value={current.unitPrice}
-                    onChange={e => setCurrent(c => ({ ...c, unitPrice: parseInt(e.target.value) || '' }))}
+                    onChange={e => setCurrent(c => ({ ...c, unitPrice: e.target.value === '' ? '' : parseInt(e.target.value) }))}
                     placeholder="0" className={`${inputClass} pl-8 bg-white`} />
                 </div>
               </div>

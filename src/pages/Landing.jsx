@@ -751,7 +751,7 @@ function Pricing() {
             </div>
             <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: 8, fontFamily: POPPINS, letterSpacing: '0.08em' }}>PRO</p>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}>
-              <p style={{ fontSize: 36, fontWeight: 800, color: 'white', fontFamily: POPPINS, lineHeight: 1 }}>$5.990 CLP</p>
+              <p style={{ fontSize: 36, fontWeight: 800, color: 'white', fontFamily: POPPINS, lineHeight: 1 }}>$4.990 CLP</p>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 4, fontFamily: POPPINS }}>/mes</p>
             </div>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', margin: '6px 0 20px', fontFamily: POPPINS }}>Para crecer con más control</p>

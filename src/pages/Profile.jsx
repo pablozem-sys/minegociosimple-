@@ -7,7 +7,7 @@ import { COUNTRIES } from '../lib/countries'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 
-const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:border-transparent'
+const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent'
 
 export default function Profile() {
   const { theme, setTheme, themes, isPro, userId, setBusinessName, setTransferDetails } = useApp()

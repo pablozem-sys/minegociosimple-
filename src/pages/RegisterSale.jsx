@@ -303,7 +303,7 @@ export default function RegisterSale() {
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
                     <input type="number" value={current.unitPrice}
-                      onChange={e => setCurrent(c => ({ ...c, unitPrice: parseInt(e.target.value) || '' }))}
+                      onChange={e => setCurrent(c => ({ ...c, unitPrice: e.target.value === '' ? '' : parseInt(e.target.value) }))}
                       placeholder="0" className={`${inputClass} pl-8`} />
                   </div>
                 </div>
@@ -376,30 +376,6 @@ export default function RegisterSale() {
       ) : (
         <SaleHistory sales={sales} />
       )}
-    </div>
-  )
-}
-
-function UpgradeWall({ count, limit, onUpgrade, upgradeLoading }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-10 px-2 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4">
-        <Lock size={28} className="text-[#6366F1]" />
-      </div>
-      <h2 className="text-lg font-bold text-gray-900 mb-1">Llegaste al límite de ventas mensuales</h2>
-      <p className="text-sm text-gray-400 mb-1">
-        Tu plan gratis incluye hasta {limit} ventas al mes. Pásate a Pro para seguir sin límites.
-      </p>
-      <p className="text-xs text-gray-300 mb-6">El contador se reinicia el 1 del próximo mes.</p>
-      <div className="w-full bg-gray-100 rounded-full h-2 mb-6">
-        <div className="bg-[#DC4B56] h-2 rounded-full w-full" />
-      </div>
-      <button onClick={onUpgrade} disabled={upgradeLoading}
-        className="w-full bg-[#6366F1] text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 active:scale-[0.98] transition-all disabled:opacity-60">
-        {upgradeLoading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
-        {upgradeLoading ? 'Preparando...' : 'Pasar a Pro — $4.990/mes'}
-      </button>
-      <p className="text-xs text-gray-300 mt-3">Ventas ilimitadas + historial completo</p>
     </div>
   )
 }

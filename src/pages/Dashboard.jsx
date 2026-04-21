@@ -30,9 +30,9 @@ export default function Dashboard() {
   const {
     todayTotal, monthTotal, pendingOrders, lowStockProducts,
     last7Days, todaySalesCount, sales, setActiveTab,
-    products, monthlySalesCount, isPro, planLimits, userId,
+    products, monthlySalesCount, isPro, planLimits, userId, businessName,
   } = useApp()
-  const { formatCurrency: fmt, t } = useLocale()
+  const { formatCurrency: fmt, t, country } = useLocale()
 
   const [upgradeLoading, setUpgradeLoading] = useState(false)
   const [upgradeError, setUpgradeError] = useState(false)
@@ -69,7 +69,7 @@ export default function Dashboard() {
     {
       label: t('ventas_hoy'),
       value: fmt(todayTotal),
-      sub: `${todaySalesCount} transacciones`,
+      sub: `${todaySalesCount} venta${todaySalesCount !== 1 ? 's' : ''}`,
       icon: TrendingUp,
       color: 'text-[#6366F1]',
       bg: 'bg-indigo-50',
@@ -118,7 +118,11 @@ export default function Dashboard() {
           <h1 className="text-xl font-bold text-gray-900 mt-0.5">Zimplex</h1>
         </div>
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6366F1] to-[#818CF8] flex items-center justify-center shadow-md shadow-indigo-200">
-          <span className="text-white font-bold text-sm">M</span>
+          <span className="text-white font-bold text-sm">
+            {businessName
+              ? businessName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+              : '?'}
+          </span>
         </div>
       </div>
 
@@ -210,7 +214,7 @@ export default function Dashboard() {
       <div className="bg-white rounded-[20px] p-4 border border-gray-100 shadow-sm mb-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-gray-900">{t('ultimos_7_dias')}</h2>
-          <span className="text-xs text-gray-400">CLP</span>
+          <span className="text-xs text-gray-400">{country.currency}</span>
         </div>
         <ResponsiveContainer width="100%" height={140}>
           <AreaChart data={last7Days} margin={{ top: 0, right: 4, left: -30, bottom: 0 }}>

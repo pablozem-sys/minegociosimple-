@@ -139,14 +139,19 @@ export default function Products() {
   const [editingProduct, setEditingProduct] = useState(null)
   const [deletingProduct, setDeletingProduct] = useState(null)
   const [notifDismissed, setNotifDismissed] = useState(
-    () => !('Notification' in window) || Notification.permission !== 'default'
+    () => !('Notification' in window) || Notification.permission !== 'default' || !!localStorage.getItem('notif_banner_dismissed')
   )
+
+  const dismissNotifBanner = () => {
+    localStorage.setItem('notif_banner_dismissed', '1')
+    setNotifDismissed(true)
+  }
 
   const atLimit = !isPro && products.length >= planLimits.maxProducts
 
   const handleActivateNotifications = async () => {
     const result = await requestNotificationPermission()
-    if (result === 'granted' || result === 'denied') setNotifDismissed(true)
+    if (result === 'granted' || result === 'denied') dismissNotifBanner()
   }
 
   const handleAddClick = () => {
@@ -202,7 +207,7 @@ export default function Products() {
             className="text-xs font-semibold text-[#6366F1] bg-white border border-indigo-200 px-3 py-1.5 rounded-xl whitespace-nowrap active:scale-95 transition-all">
             Activar alertas
           </button>
-          <button onClick={() => setNotifDismissed(true)} className="text-gray-400 active:scale-95">
+          <button onClick={dismissNotifBanner} className="text-gray-400 active:scale-95">
             <X size={14} />
           </button>
         </div>
