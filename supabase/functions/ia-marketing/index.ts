@@ -12,7 +12,14 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
 
   try {
-    const { content } = await req.json()
+    const body = await req.json()
+    const content = typeof body.content === 'string' ? body.content : JSON.stringify(body.content ?? body)
+
+    if (!content) {
+      return new Response(JSON.stringify({ error: 'Contenido vacío' }), {
+        status: 400, headers: { 'Content-Type': 'application/json', ...CORS },
+      })
+    }
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
