@@ -17,7 +17,7 @@ async function callClaude(system, userContent) {
         'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: 'claude-3-haiku-20240307',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
         system,
         messages: [{ role: 'user', content: userContent }],
@@ -29,7 +29,8 @@ async function callClaude(system, userContent) {
   }
   const fnName = system.includes('ventas') ? 'ia-ventas' : system.includes('inventario') ? 'ia-stock' : 'ia-marketing'
   const { data, error } = await supabase.functions.invoke(fnName, { body: { content: userContent } })
-  if (error) throw error
+  if (error) throw new Error(error.message || 'No se pudo conectar con el asistente IA')
+  if (data?.error) throw new Error(data.error)
   return data
 }
 
@@ -77,7 +78,7 @@ function AnalisisVentas() {
       const data = await callClaude(system, JSON.stringify(payload))
       setResult(data)
     } catch (e) {
-      setError('Error: ' + (e?.message || JSON.stringify(e)))
+      setError('No se pudo conectar con el asistente. Intenta de nuevo en unos segundos.')
     } finally {
       setLoading(false)
     }
@@ -182,7 +183,7 @@ function RevisionStock() {
       const data = await callClaude(system, JSON.stringify(payload))
       setResult(data)
     } catch (e) {
-      setError('Error: ' + (e?.message || JSON.stringify(e)))
+      setError('No se pudo conectar con el asistente. Intenta de nuevo en unos segundos.')
     } finally {
       setLoading(false)
     }
@@ -296,7 +297,7 @@ function CreadorPost() {
       const data = await callClaude(system, msg)
       setResult(data)
     } catch (e) {
-      setError('Error: ' + (e?.message || JSON.stringify(e)))
+      setError('No se pudo conectar con el asistente. Intenta de nuevo en unos segundos.')
     } finally {
       setLoading(false)
     }
