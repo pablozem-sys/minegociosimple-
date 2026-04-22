@@ -4,29 +4,7 @@ import { useLocale } from '../context/LocaleContext'
 import { supabase } from '../lib/supabase'
 import { Sparkles, TrendingUp, Package, Megaphone, Copy, Check } from 'lucide-react'
 
-const ANTHROPIC_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY
-
 async function callClaude(system, userContent) {
-  if (ANTHROPIC_KEY) {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system,
-        messages: [{ role: 'user', content: userContent }],
-      }),
-    })
-    const d = await res.json()
-    if (d.error) throw new Error(d.error.message)
-    return JSON.parse(d.content[0].text.match(/\{[\s\S]*\}/)[0])
-  }
   const fnName = system.includes('ventas') ? 'ia-ventas' : system.includes('inventario') ? 'ia-stock' : 'ia-marketing'
   const { data, error } = await supabase.functions.invoke(fnName, { body: { content: userContent } })
   if (error) {

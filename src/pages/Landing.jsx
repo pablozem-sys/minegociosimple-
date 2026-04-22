@@ -5,6 +5,7 @@ import {
   X, ChevronRight, Heart, ShoppingBag, AlertTriangle, Send, Loader2
 } from 'lucide-react'
 import { GradientBackground } from '@/components/ui/gradient-background'
+import { TypewriterEffectSmooth } from '@/components/ui/typewriter-effect'
 
 // ─── BRAND ───────────────────────────────────────────────────────────────────
 const BLUE     = '#3B82F6'
@@ -356,9 +357,22 @@ function Hero({ onLogin }) {
             ✦ Para emprendedores que venden por WhatsApp
           </Chip>
 
-          <h1 style={{ marginTop: 24, fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: 'white', fontFamily: POPPINS }}>
-            Vendes por WhatsApp.<br />Ahora organiza todo desde ahí.
-          </h1>
+          <div style={{ marginTop: 24 }}>
+            <TypewriterEffectSmooth
+              words={[
+                { text: 'Vendes' },
+                { text: 'por' },
+                { text: 'WhatsApp.', className: 'text-[#25D366]' },
+                { text: 'Ahora' },
+                { text: 'organiza' },
+                { text: 'todo' },
+                { text: 'desde' },
+                { text: 'ahí.' },
+              ]}
+              className="text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-tight tracking-tight"
+              cursorClassName="bg-[#25D366]"
+            />
+          </div>
 
           <p style={{ marginTop: 20, fontSize: 17, color: 'rgba(255,255,255,0.78)', lineHeight: 1.7, maxWidth: 520, margin: '20px auto 0', fontFamily: POPPINS }}>
             Crea pedidos, mándalos directo al cliente por WhatsApp y lleva el control de tu stock — todo sin salir del celular.
