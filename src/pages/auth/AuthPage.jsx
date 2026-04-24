@@ -46,6 +46,7 @@ export default function AuthPage() {
       if (mode === 'register') {
         const { data, error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
+        window.gtag?.('event', 'sign_up', { method: 'email' })
         // Si no hay sesión, Supabase requiere confirmar email
         if (!data.session) setRegistered(true)
       } else {
